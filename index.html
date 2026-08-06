@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ポーランドボールと学ぼう！中2一次関数（レベル1）</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div id="app-container">
+    <!-- ヘッダー -->
+    <header class="app-header">
+      <div class="header-brand">
+        <img src="images/polandball.jpg" alt="ポーランドボール" class="header-logo">
+        <div class="header-title">
+          <h1>一次関数マスター！</h1>
+          <p>レベル1：基本のきほん</p>
+        </div>
+      </div>
+      <div class="header-stats">
+        <div class="stat-badge">
+          <span>⭐ スター:</span>
+          <span id="star-count">0</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- メインコンテンツ -->
+    <main class="main-content">
+
+      <!-- 進捗メーター -->
+      <div class="progress-section">
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="progress-fill"></div>
+        </div>
+        <div class="progress-text" id="progress-text">第 1 / 6 問</div>
+      </div>
+
+      <!-- ポーランドボールのキャラクターメッセージ -->
+      <div class="character-banner" id="char-banner" style="background: linear-gradient(135deg, #FF4B4B 0%, #FF8585 100%);">
+        <img src="images/polandball.jpg" alt="キャラ" class="character-avatar" id="char-avatar">
+        <div class="speech-bubble" id="char-speech">
+          Kurwa! 一次関数のきほんの形を覚えるよ！
+        </div>
+      </div>
+
+      <!-- 問題カードエリア -->
+      <div class="question-card" id="question-card">
+        <div class="question-header">
+          <h2 class="question-title" id="q-title">第1問：一次関数の【名前】を覚えよう！</h2>
+          <p class="question-desc" id="q-desc">説明文がここに入ります</p>
+        </div>
+
+        <!-- 式・穴埋めカード -->
+        <div id="q-equation-area">
+          <!-- JSで動的生成 -->
+        </div>
+
+        <!-- 視覚化グラフエリア -->
+        <div class="graph-container">
+          <canvas id="graphCanvas"></canvas>
+        </div>
+
+        <!-- アクションボタンエリア (①やってみる → ②わからない → ③解答) -->
+        <div class="action-bar">
+          <button class="btn-hint" onclick="handleHintClick()">
+            <span>💡 わからない</span>
+          </button>
+          <button class="btn-submit" onclick="handleSubmitClick()">
+            <span>✨ 解答する！</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 全問クリア結果画面 (初期非表示) -->
+      <div class="result-screen" id="result-screen" style="display: none;">
+        <img src="images/banner.jpg" alt="バンナー" class="result-banner-img celebrate-anim">
+        <h2 style="font-size: 2rem; font-weight: 900; color: var(--primary);">🎉 全問クリア！おめでとう！</h2>
+        <p style="font-size: 1.2rem; font-weight: 700;">君はもう一次関数のレベル1マスターだ！<br>ポーランドボールたちも大よろこび！</p>
+        
+        <div style="width: 100%;">
+          <h3 style="margin-bottom: 12px; font-weight: 900;">🏆 ゲットした国旗バッジコレクション</h3>
+          <div class="badge-grid" id="badge-grid">
+            <!-- JSで動的追加 -->
+          </div>
+        </div>
+
+        <button class="btn-submit" onclick="restartQuiz()" style="margin-top: 20px; width: 80%;">
+          <span>🔄 もう一度挑戦する！</span>
+        </button>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ヒントモーダル -->
+  <div class="modal-overlay" id="hint-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <span style="font-size: 2rem;">💡</span>
+        <h3 id="hint-modal-title">ポーランドボールからのヒント</h3>
+      </div>
+      <div class="modal-body" id="hint-modal-body">
+        ヒント内容がここに入ります。
+      </div>
+      <button class="btn-modal-close" onclick="closeModal('hint-modal')">わかった！とじる</button>
+    </div>
+  </div>
+
+  <!-- 解答確認＆正誤判定モーダル -->
+  <div class="modal-overlay" id="result-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <span id="result-modal-icon" style="font-size: 2.5rem;">🎉</span>
+        <h3 id="result-modal-title">せいかい！</h3>
+      </div>
+      <div class="modal-body" id="result-modal-body">
+        解説がここに入ります。
+      </div>
+      <button class="btn-submit" id="result-modal-next-btn" onclick="nextQuestion()">つぎの問題へ！ ➔</button>
+    </div>
+  </div>
+
+  <!-- 選択肢ダイアログモーダル -->
+  <div class="modal-overlay" id="choice-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>あてはまる言葉を選んでね！</h3>
+      </div>
+      <div class="options-grid" id="choice-options">
+        <!-- JSで選択肢ボタン生成 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- iPad用オンスクリーンテンキーパッド -->
+  <div class="keypad-sheet" id="keypad-sheet">
+    <div class="keypad-header">
+      <span class="keypad-title">数字を入力しよう</span>
+      <button onclick="closeKeypad()" style="background:none; border:none; font-size:1.5rem; font-weight:bold; cursor:pointer;">✕</button>
+    </div>
+    <div class="keypad-display" id="keypad-display"></div>
+    <div class="keypad-grid">
+      <button class="key-btn" onclick="pressKey('1')">1</button>
+      <button class="key-btn" onclick="pressKey('2')">2</button>
+      <button class="key-btn" onclick="pressKey('3')">3</button>
+      <button class="key-btn" onclick="pressKey('4')">4</button>
+      <button class="key-btn" onclick="pressKey('5')">5</button>
+      <button class="key-btn" onclick="pressKey('6')">6</button>
+      <button class="key-btn" onclick="pressKey('7')">7</button>
+      <button class="key-btn" onclick="pressKey('8')">8</button>
+      <button class="key-btn" onclick="pressKey('9')">9</button>
+      <button class="key-btn action-key" onclick="pressKey('-')">ー</button>
+      <button class="key-btn" onclick="pressKey('0')">0</button>
+      <button class="key-btn action-key" onclick="pressKey('BS')">⌫</button>
+      <button class="key-btn confirm-key" onclick="confirmKeypad()">決 定</button>
+    </div>
+  </div>
+
+  <!-- JS スクリプト読み込み -->
+  <script src="questions.js"></script>
+  <script src="sound.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
