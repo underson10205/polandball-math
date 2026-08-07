@@ -1,4 +1,4 @@
-// メインアプリケーションロジック (全46問・ポーランドボール絵文字依存ゼロイラスト対応版)
+// メインアプリケーションロジック (全46问・プロパティ参照エラー全防御版)
 let currentStageQuestions = [];
 let currentQIdx = 0;
 let userAnswers = {};
@@ -107,24 +107,43 @@ function startStage(stageId) {
   loadQuestion(currentQIdx);
 }
 
+// 完全に安全な問題ロード処理 (プロパティ参照エラー完全防止)
 function loadQuestion(index) {
+  if (!currentStageQuestions || !currentStageQuestions[index]) {
+    showResultScreen();
+    return;
+  }
+
   const q = currentStageQuestions[index];
   userAnswers = {};
   activeBlankId = null;
   keypadValue = "";
 
+  const avatar = q.avatar || 'images/polandball.jpg';
+  const bg = q.bgGradient || 'linear-gradient(135deg, #FF4B4B 0%, #FF8585 100%)';
+  const flag = q.flag || '🇵🇱';
+  const character = q.character || 'ポーランドボール';
+  const dialog = q.dialog || 'Kurwa! 一緒にがんばろう！';
+
   const progressPercent = ((index + 1) / currentStageQuestions.length) * 100;
-  document.getElementById('progress-fill').style.width = `${progressPercent}%`;
-  document.getElementById('progress-text').innerText = `第 ${index + 1} / ${currentStageQuestions.length} 問`;
+  const fillEl = document.getElementById('progress-fill');
+  if (fillEl) fillEl.style.width = `${progressPercent}%`;
+  const textEl = document.getElementById('progress-text');
+  if (textEl) textEl.innerText = `第 ${index + 1} / ${currentStageQuestions.length} 問`;
 
   const banner = document.getElementById('char-banner');
-  banner.style.background = q.bgGradient;
-  document.getElementById('char-avatar').src = q.avatar;
-  document.getElementById('char-speech').innerHTML = `<b>${q.flag} ${q.character}:</b> 「${q.dialog}」`;
+  if (banner) banner.style.background = bg;
+  const avatarEl = document.getElementById('char-avatar');
+  if (avatarEl) avatarEl.src = avatar;
+  const speechEl = document.getElementById('char-speech');
+  if (speechEl) speechEl.innerHTML = `<b>${flag} ${character}:</b> 「${dialog}」`;
 
-  document.getElementById('q-title').innerHTML = `${q.flag} ${q.title}`;
-  document.getElementById('q-desc').innerHTML = q.description;
-  document.getElementById('q-equation-area').innerHTML = q.equationDisplay;
+  const titleEl = document.getElementById('q-title');
+  if (titleEl) titleEl.innerHTML = `${flag} ${q.title || ''}`;
+  const descEl = document.getElementById('q-desc');
+  if (descEl) descEl.innerHTML = q.description || '';
+  const eqArea = document.getElementById('q-equation-area');
+  if (eqArea) eqArea.innerHTML = q.equationDisplay || '';
 
   renderGraph(q.graphData);
 }
@@ -286,8 +305,8 @@ function selectChoice(value) {
 function handleHintClick() {
   sounds.playHint();
   const q = currentStageQuestions[currentQIdx];
-  document.getElementById('hint-modal-title').innerText = `${q.character}からのヒント`;
-  document.getElementById('hint-modal-body').innerHTML = q.hint1;
+  document.getElementById('hint-modal-title').innerText = `${q.character || 'ポーランドボール'}からのヒント`;
+  document.getElementById('hint-modal-body').innerHTML = q.hint1 || '';
   openModal('hint-modal');
 }
 
@@ -337,7 +356,7 @@ function handleSubmitClick() {
     document.getElementById('result-modal-body').innerHTML = `
       <p style="color: var(--success); font-size: 1.3rem; font-weight:900; margin-bottom:10px;">⭐ スター10個ゲット！ (通算 ${solvedCount} 問正解)</p>
       ${ticketEarnedNotice}
-      ${q.explanation}
+      ${q.explanation || ''}
     `;
 
     nextBtn.onclick = nextQuestion;
@@ -357,7 +376,7 @@ function handleSubmitClick() {
     document.getElementById('result-modal-body').innerHTML = `
       <p style="color: #E11D48; font-weight:800; margin-bottom:10px;">ヒントを参考に、もう一度挑戦してみよう！</p>
       <div style="background: #FFF1F2; padding: 12px; border-radius: 12px; border: 1px solid #FECDD3;">
-        ${q.hint2}
+        ${q.hint2 || ''}
       </div>
     `;
     nextBtn.innerText = "もう一度やる！";
@@ -484,7 +503,6 @@ function renderCardCollectionGrid() {
   });
 }
 
-// ポーランドボールの球体イラストグラフィック描画関数 (OS依存脱却)
 function renderCardIllustration(card) {
   if (card.image) {
     return `<img src="${card.image}" alt="${card.countryName}" style="width:76px; height:76px; border-radius:50%; border:3px solid white; box-shadow:0 6px 14px rgba(0,0,0,0.2); object-fit:cover;">`;
