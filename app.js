@@ -1,4 +1,4 @@
-// メインアプリケーションロジック (1正解＝1ガチャチケット即GET大サービス版)
+// メインアプリケーションロジック (コースクリアでチケット1枚GET仕様)
 let currentStageQuestions = [];
 let currentQIdx = 0;
 let userAnswers = {};
@@ -8,14 +8,14 @@ let keypadValue = "";
 let currentStageId = 1;
 
 let solvedCount = 0;
-let gachaTickets = 5; // 初期5枚プレゼント！
+let gachaTickets = 3;
 
 const savedTicketsStr = safeGetItem('polandball_gacha_tickets');
 if (savedTicketsStr !== null) {
   gachaTickets = parseInt(savedTicketsStr, 10);
-  if (isNaN(gachaTickets) || gachaTickets < 1) gachaTickets = 5;
+  if (isNaN(gachaTickets) || gachaTickets < 0) gachaTickets = 3;
 } else {
-  safeSetItem('polandball_gacha_tickets', '5');
+  safeSetItem('polandball_gacha_tickets', '3');
 }
 
 const savedSolvedStr = safeGetItem('polandball_solved_count');
@@ -69,7 +69,7 @@ function updateHeaderStats() {
 
     const bannerSub = document.querySelector('.gacha-ticket-banner div div:last-child');
     if (bannerSub) {
-      bannerSub.innerText = `1問正解するごとにチケット1枚GET！ (所持: ${gachaTickets}枚)`;
+      bannerSub.innerText = `コースをクリアするごとにガチャチケット1枚GET！`;
     }
   } catch (e) {}
 }
@@ -338,7 +338,6 @@ function normalizeAnswer(val) {
     .replace(/ー/g, '-');
 }
 
-// ★1問題正解するごとに確実にチケット1枚即時GETシステム★
 function handleSubmitClick() {
   try {
     const q = currentStageQuestions[currentQIdx];
@@ -375,23 +374,14 @@ function handleSubmitClick() {
       try { sounds.playSuccess(); } catch(e){}
       starCount += 10;
       solvedCount++;
-      gachaTickets++; // ★正解1回につき絶対確実にチケット+1枚！！★
 
       saveStats();
       updateHeaderStats();
-
-      const ticketEarnedNotice = `
-        <div style="background:linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color:white; border:3px solid #FEF3C7; padding:14px; border-radius:16px; font-weight:900; margin-top:12px; box-shadow:0 6px 16px rgba(245,158,11,0.4); animation:celebrate 0.5s ease; text-align:center;">
-          🎉 正解！ ガチャチケット1枚GET！！<br>
-          <span style="font-size:1.1rem; color:#FEF3C7;">🎟️ 現在のチケット: ${gachaTickets}枚</span>
-        </div>
-      `;
 
       document.getElementById('result-modal-icon').innerText = "🎉";
       document.getElementById('result-modal-title').innerText = "Kurwa! 大正解！！";
       document.getElementById('result-modal-body').innerHTML = `
         <p style="color: var(--success); font-size: 1.3rem; font-weight:900; margin-bottom:10px;">⭐ スター10個ゲット！ (通算 ${solvedCount} 問正解)</p>
-        ${ticketEarnedNotice}
         ${q.explanation || ''}
       `;
 
@@ -447,15 +437,26 @@ function nextQuestion() {
   }
 }
 
+// ★コース（ステージ）クリア時にガチャチケットを1枚確実付与★
 function showResultScreen() {
   try { sounds.playFanfare(); } catch(e){}
+  
+  gachaTickets++; // コースクリアでチケット1枚ゲット！
+  saveStats();
+  updateHeaderStats();
+
   document.getElementById('quiz-play-screen').style.display = 'none';
 
   const resultScreen = document.getElementById('result-screen');
   resultScreen.style.display = 'flex';
 
   document.getElementById('result-title').innerText = "🎉 コースクリア！おめでとう！";
-  document.getElementById('result-desc').innerText = `全 ${currentStageQuestions.length} 問クリア！ガチャチケットをゲットしよう！`;
+  document.getElementById('result-desc').innerHTML = `
+    全 ${currentStageQuestions.length} 問クリア！<br>
+    <div style="background:linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color:white; border:3px solid #FEF3C7; padding:12px 20px; border-radius:16px; font-weight:900; margin-top:10px; box-shadow:0 6px 16px rgba(245,158,11,0.4);">
+      🎁 コースクリア特典！ ガチャチケット1枚GET！（所持: ${gachaTickets}枚）
+    </div>
+  `;
 }
 
 function openGachaModal() {
@@ -473,7 +474,7 @@ function openGachaModal() {
 function doDrawGacha() {
   if (gachaTickets <= 0) {
     try { sounds.playRetry(); } catch(e){}
-    alert("ガチャチケットがありません！問題を解いてチケットをゲットしてね！");
+    alert("ガチャチケットがありません！コースをクリアしてチケットをゲットしてね！");
     return;
   }
 
