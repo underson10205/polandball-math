@@ -1,4 +1,4 @@
-// 自動テストスクリプト: ステージ1 第10問の解答〜画面遷移〜チケット保存の一連テスト
+// 自動テストスクリプト: v2 ファイル対応版
 const fs = require('fs');
 
 const dummyElements = {
@@ -59,9 +59,9 @@ global.document = global.window.document;
 global.localStorage = global.window.localStorage;
 global.sounds = { playTap:()=>{}, playSuccess:()=>{}, playRetry:()=>{}, playFanfare:()=>{} };
 
-let questionsCode = fs.readFileSync('c:/Users/hoshi/.gemini/antigravity/scratch/蒼の問題作成アプリ/questions.js', 'utf8').replace(/const /g, 'var ');
-let cardsCode = fs.readFileSync('c:/Users/hoshi/.gemini/antigravity/scratch/蒼の問題作成アプリ/cards.js', 'utf8').replace(/const /g, 'var ').replace(/let /g, 'var ');
-let appCode = fs.readFileSync('c:/Users/hoshi/.gemini/antigravity/scratch/蒼の問題作成アプリ/app.js', 'utf8').replace(/const /g, 'var ').replace(/let /g, 'var ');
+let questionsCode = fs.readFileSync('c:/Users/hoshi/.gemini/antigravity/scratch/蒼の問題作成アプリ/questions_v2.js', 'utf8');
+let cardsCode = fs.readFileSync('c:/Users/hoshi/.gemini/antigravity/scratch/蒼の問題作成アプリ/cards_v2.js', 'utf8');
+let appCode = fs.readFileSync('c:/Users/hoshi/.gemini/antigravity/scratch/蒼の問題作成アプリ/app_v2.js', 'utf8');
 
 eval(questionsCode);
 eval(cardsCode);
@@ -90,7 +90,7 @@ try {
   const ticketAfter = gachaTickets;
 
   console.log("\n-------------------------------------------");
-  console.log("【100%自動検証テスト結果】");
+  console.log("【100%自動検証テスト結果 (v2)】");
   console.log("・解答前チケット数:", ticketBefore);
   console.log("・解答後チケット数:", ticketAfter);
   console.log("・チケット加算検証 (+1枚):", ticketAfter === ticketBefore + 1 ? "PASSED ✅ (正常に1枚増えました！)" : "FAILED ❌");
@@ -101,7 +101,7 @@ try {
   console.log("-------------------------------------------\n");
 
   console.log("=== 6. トップ画面戻りテスト ===");
-  showStageSelect();
+  forceGoHome();
   console.log("・トップ画面表示化 (display:flex):", dummyElements['stage-select-screen'].style.display === 'flex' ? "PASSED ✅ (トップへ戻りました！)" : "FAILED ❌");
 
 } catch (err) {

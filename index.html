@@ -4,18 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>ポーランドボールと学ぼう！中2一次関数（カード200種）</title>
-  <link rel="stylesheet" href="style.css?v=20260807_9999">
+  <link rel="stylesheet" href="style_v2.css?v=20260807_REAL_FINAL">
 </head>
 <body>
 
-  <!-- 画面右上に常に固定表示する絶対安全ホームボタン -->
-  <button id="fixed-home-btn" onclick="forceGoHome()" style="position: fixed; top: 12px; right: 12px; z-index: 99999; background: #FF4747; color: white; border: 2px solid white; padding: 8px 16px; border-radius: 50px; font-weight: 900; font-size: 0.95rem; box-shadow: 0 4px 14px rgba(0,0,0,0.3); cursor: pointer;">
+  <!-- どんな状態でも一発でホームに戻る超強固インラインボタン -->
+  <button id="fixed-home-btn" onclick="window.location.href = window.location.href.split('?')[0].split('#')[0];" style="position: fixed; top: 12px; right: 12px; z-index: 999999; background: #DC2626; color: white; border: 3px solid white; padding: 10px 18px; border-radius: 50px; font-weight: 900; font-size: 1rem; box-shadow: 0 6px 20px rgba(0,0,0,0.4); cursor: pointer;">
     🏠 ホームへ戻る
   </button>
 
   <div id="app-container">
     <header class="app-header">
-      <div class="header-brand" id="brand-home-trigger" style="cursor:pointer;">
+      <div class="header-brand" id="brand-home-trigger" onclick="window.location.href = window.location.href.split('?')[0].split('#')[0];" style="cursor:pointer;">
         <img src="images/polandball.jpg" alt="ポーランドボール" class="header-logo">
         <div class="header-title">
           <h1>一次関数マスター！</h1>
@@ -97,7 +97,7 @@
               <div class="stage-icon">👑</div>
               <div>
                 <div class="stage-name" style="color: #F59E0B;">ステージ5：ファイナル挑戦</div>
-                <div class="stage-range">第41〜46问</div>
+                <div class="stage-range">第41〜46問</div>
               </div>
             </div>
             <div class="stage-arrow">➔</div>
@@ -108,7 +108,7 @@
       <!-- 2. クイズプレイ画面 -->
       <div id="quiz-play-screen" style="display: none; flex-direction: column; gap: 20px;">
         <div class="progress-section">
-          <button onclick="forceGoHome()" style="background:#E2E8F0; border:none; font-size:1.1rem; cursor:pointer; padding:8px 14px; border-radius:12px; font-weight:900; color:#334155;">🏠 トップへ</button>
+          <button onclick="window.location.href = window.location.href.split('?')[0].split('#')[0];" style="background:#E2E8F0; border:none; font-size:1.1rem; cursor:pointer; padding:8px 14px; border-radius:12px; font-weight:900; color:#334155;">🏠 トップへ</button>
           <div class="progress-bar-bg">
             <div class="progress-bar-fill" id="progress-fill"></div>
           </div>
@@ -155,7 +155,7 @@
           <span>🎁 ガチャを引いてカードGET！</span>
         </button>
 
-        <button class="btn-submit" onclick="forceGoHome()" style="margin-top: 10px; width: 90%;">
+        <button class="btn-submit" onclick="window.location.href = window.location.href.split('?')[0].split('#')[0];" style="margin-top: 10px; width: 90%;">
           <span>🗺️ コース選択へもどる</span>
         </button>
       </div>
@@ -275,10 +275,10 @@
     </div>
   </div>
 
-  <!-- 強制キャッシュ破棄用スクリプト読み込み -->
-  <script src="questions.js?v=20260807_9999"></script>
-  <script src="cards.js?v=20260807_9999"></script>
-  <script src="sound.js?v=20260807_9999"></script>
-  <script src="app.js?v=20260807_9999"></script>
+  <!-- _v2 ファイルへの直接参照 (古いキャッシュ完全無効化) -->
+  <script src="questions_v2.js?v=20260807_REAL_FINAL"></script>
+  <script src="cards_v2.js?v=20260807_REAL_FINAL"></script>
+  <script src="sound.js?v=20260807_REAL_FINAL"></script>
+  <script src="app_v2.js?v=20260807_REAL_FINAL"></script>
 </body>
 </html>
