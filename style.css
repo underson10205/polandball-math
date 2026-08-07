@@ -1,5 +1,5 @@
 /* ----------------------------------------------------
-   ポーランドボールと学ぼう！一次関数アプリ CSS (全46問版)
+   ポーランドボールと学ぼう！一次関数アプリ CSS (全200種カード機能つき)
    ---------------------------------------------------- */
 @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800;900&display=swap');
 
@@ -363,7 +363,7 @@ body {
   border-radius: 8px;
 }
 
-/* 穴埋めボタン（iPadで押しやすい！） */
+/* 穴埋めボタン */
 .blank-btn {
   background: #FFFFFF;
   border: 3px dashed var(--primary);
@@ -441,7 +441,7 @@ canvas#graphCanvas {
   height: 100%;
 }
 
-/* アクションボタンバー（ご指定の3ステップ） */
+/* アクションボタンバー */
 .action-bar {
   display: flex;
   gap: 16px;
@@ -525,8 +525,7 @@ canvas#graphCanvas {
   transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  text-align: center;
+  gap: 16px;
   position: relative;
 }
 
@@ -568,6 +567,113 @@ canvas#graphCanvas {
   border-radius: 16px;
   cursor: pointer;
   box-shadow: 0 4px 0 #B91C1C;
+}
+
+/* カード図鑑グリッド & カードデザイン */
+.rarity-tabs {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.tab-btn {
+  background: #F1F5F9;
+  border: 2px solid #CBD5E1;
+  padding: 6px 14px;
+  border-radius: 50px;
+  font-family: var(--font-family);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.tab-btn.active {
+  background: var(--secondary);
+  color: white;
+  border-color: var(--secondary);
+}
+
+.card-collection-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  max-height: 450px;
+  overflow-y: auto;
+  padding: 6px;
+}
+
+.pb-card-item {
+  border-radius: 16px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  position: relative;
+  text-align: center;
+  transition: transform 0.2s ease;
+}
+
+.pb-card-item:hover {
+  transform: scale(1.05);
+}
+
+.pb-card-item.unowned {
+  filter: grayscale(1);
+  opacity: 0.4;
+}
+
+.pb-card-flag {
+  font-size: 2rem;
+}
+
+.pb-card-rarity {
+  font-weight: 900;
+  font-size: 0.8rem;
+  padding: 2px 8px;
+  border-radius: 50px;
+  color: white;
+}
+
+.pb-card-title {
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+/* ガチャ結果カード演出 */
+.gacha-card-result {
+  border-radius: 24px;
+  padding: 20px;
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 16px 36px rgba(0,0,0,0.25);
+  animation: celebrate 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.gacha-card-result.rarity-SSR {
+  background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
+  border: 4px solid #F59E0B;
+  box-shadow: 0 0 25px rgba(245, 158, 11, 0.6);
+}
+
+.gacha-card-result.rarity-SR {
+  background: #FAF5FF;
+  border: 4px solid #A855F7;
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+}
+
+.gacha-card-result.rarity-R {
+  background: #EFF6FF;
+  border: 4px solid #3B82F6;
+}
+
+.gacha-card-result.rarity-N {
+  background: #F8FAFC;
+  border: 4px solid #94A3B8;
 }
 
 /* iPad用オンスクリーンテンキーパッド */
@@ -690,12 +796,12 @@ canvas#graphCanvas {
   transform: translateX(4px);
 }
 
-/* コレクション・クリア画面 */
+/* 結果画面 */
 .result-screen {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 24px;
+  gap: 20px;
   text-align: center;
   padding: 20px 10px;
 }
@@ -705,34 +811,6 @@ canvas#graphCanvas {
   max-width: 400px;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-soft);
-}
-
-.badge-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  width: 100%;
-}
-
-.badge-item {
-  background: white;
-  border: 2px solid #E2E8F0;
-  border-radius: 16px;
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-}
-
-.badge-flag {
-  font-size: 2.2rem;
-}
-
-.badge-name {
-  font-weight: 900;
-  font-size: 0.8rem;
 }
 
 /* アニメーション定義 */

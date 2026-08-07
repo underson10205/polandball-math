@@ -1,4 +1,4 @@
-// メインアプリケーションロジック (全46問・ステージ機能付き)
+// メインアプリケーションロジック (全46問・200種カードガチャ機能付き)
 let currentStageQuestions = [];
 let currentQIdx = 0;
 let userAnswers = {};
@@ -7,11 +7,37 @@ let starCount = 0;
 let keypadValue = "";
 let currentStageId = 1;
 
+// ユーザーの回答記録・ガチャチケット管理
+let solvedCount = 0;
+let gachaTickets = 0;
+
+try {
+  const savedTickets = localStorage.getItem('polandball_gacha_tickets');
+  if (savedTickets) gachaTickets = parseInt(savedTickets, 10);
+  const savedSolved = localStorage.getItem('polandball_solved_count');
+  if (savedSolved) solvedCount = parseInt(savedSolved, 10);
+} catch (e) {}
+
+function saveStats() {
+  try {
+    localStorage.setItem('polandball_gacha_tickets', gachaTickets.toString());
+    localStorage.setItem('polandball_solved_count', solvedCount.toString());
+  } catch (e) {}
+}
+
 // ページロード時の初期化
 window.addEventListener('DOMContentLoaded', () => {
   renderStageGrid();
+  updateHeaderStats();
   showStageSelect();
 });
+
+function updateHeaderStats() {
+  const stats = getCardCollectionStats();
+  document.getElementById('collection-percent').innerText = `${stats.percent}% (${stats.ownedCount}/200)`;
+  document.getElementById('ticket-count').innerText = gachaTickets;
+  document.getElementById('star-count').innerText = starCount;
+}
 
 // ステージ選択画面の生成
 function renderStageGrid() {
@@ -37,24 +63,21 @@ function renderStageGrid() {
   });
 }
 
-// コース選択画面を表示
 function showStageSelect() {
   sounds.playTap();
+  updateHeaderStats();
   document.getElementById('stage-select-screen').style.display = 'flex';
   document.getElementById('quiz-play-screen').style.display = 'none';
   document.getElementById('result-screen').style.display = 'none';
 }
 
-// 特定ステージのクイズを開始
 function startStage(stageId) {
   sounds.playTap();
   currentStageId = stageId;
 
   if (stageId === 5) {
-    // ステージ5（ファイナル）：全46問からランダム/全問題
     currentStageQuestions = QUESTIONS;
   } else {
-    // ステージ1〜4
     currentStageQuestions = QUESTIONS.filter(q => q.stage === stageId);
   }
 
@@ -66,32 +89,25 @@ function startStage(stageId) {
   loadQuestion(currentQIdx);
 }
 
-// 問題のロード
 function loadQuestion(index) {
   const q = currentStageQuestions[index];
   userAnswers = {};
   activeBlankId = null;
   keypadValue = "";
 
-  // 進捗更新
   const progressPercent = ((index + 1) / currentStageQuestions.length) * 100;
   document.getElementById('progress-fill').style.width = `${progressPercent}%`;
   document.getElementById('progress-text').innerText = `第 ${index + 1} / ${currentStageQuestions.length} 問`;
 
-  // キャラクター＆セリフ
   const banner = document.getElementById('char-banner');
   banner.style.background = q.bgGradient;
   document.getElementById('char-avatar').src = q.avatar;
   document.getElementById('char-speech').innerHTML = `<b>${q.flag} ${q.character}:</b> 「${q.dialog}」`;
 
-  // タイトル＆説明
   document.getElementById('q-title').innerHTML = `${q.flag} ${q.title}`;
   document.getElementById('q-desc').innerHTML = q.description;
-
-  // 数式・穴埋め表示
   document.getElementById('q-equation-area').innerHTML = q.equationDisplay;
 
-  // グラフ描画
   renderGraph(q.graphData);
 }
 
@@ -109,16 +125,13 @@ function renderGraph(graphData) {
   const width = rect.width;
   const height = rect.height;
 
-  // 背景
   ctx.fillStyle = '#FAFAFA';
   ctx.fillRect(0, 0, width, height);
 
-  // 座標軸 (原点: 中央)
   const originX = width / 2;
   const originY = height / 2;
-  const scale = 14; // ピクセル倍率
+  const scale = 14;
 
-  // グリッド線
   ctx.strokeStyle = '#E2E8F0';
   ctx.lineWidth = 1;
   for (let x = originX % scale; x < width; x += scale) {
@@ -128,7 +141,6 @@ function renderGraph(graphData) {
     ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke();
   }
 
-  // x軸・y軸
   ctx.strokeStyle = '#64748B';
   ctx.lineWidth = 2;
   ctx.beginPath(); ctx.moveTo(0, originY); ctx.lineTo(width, originY); ctx.stroke();
@@ -140,7 +152,6 @@ function renderGraph(graphData) {
   ctx.fillText('y', originX + 6, 12);
   ctx.fillText('O', originX - 12, originY + 12);
 
-  // 一次関数の直線描画 y = ax + b
   if (graphData && typeof graphData.a === 'number') {
     const a = graphData.a;
     const b = graphData.b;
@@ -158,25 +169,12 @@ function renderGraph(graphData) {
     ctx.lineTo(width, originY - yMax * scale);
     ctx.stroke();
 
-    // 切片 (0, b) の強点
     const interceptScreenY = originY - b * scale;
     if (interceptScreenY >= 0 && interceptScreenY <= height) {
       ctx.fillStyle = '#8B5CF6';
       ctx.beginPath();
       ctx.arc(originX, interceptScreenY, 5, 0, Math.PI * 2);
       ctx.fill();
-    }
-
-    // 指定点
-    if (graphData.type === 'point' && typeof graphData.pointX === 'number') {
-      const ptScreenX = originX + graphData.pointX * scale;
-      const ptScreenY = originY - graphData.pointY * scale;
-      if (ptScreenX >= 0 && ptScreenX <= width && ptScreenY >= 0 && ptScreenY <= height) {
-        ctx.fillStyle = '#3B82F6';
-        ctx.beginPath();
-        ctx.arc(ptScreenX, ptScreenY, 6, 0, Math.PI * 2);
-        ctx.fill();
-      }
     }
   }
 }
@@ -238,7 +236,6 @@ function confirmKeypad() {
   closeKeypad();
 }
 
-// 選択肢モーダル
 function openChoiceModal(blankId) {
   sounds.playTap();
   activeBlankId = blankId;
@@ -274,7 +271,7 @@ function selectChoice(value) {
 }
 
 // --------------------------------------------------
-// ② 「わからない」ボタン（ヒントモーダル）
+// ② 「わからない」ボタン
 // --------------------------------------------------
 function handleHintClick() {
   sounds.playHint();
@@ -285,13 +282,12 @@ function handleHintClick() {
 }
 
 // --------------------------------------------------
-// ③ 「解答する！」ボタン（正誤判定）
+// ③ 「解答する！」ボタン（正誤判定＆5問ごとのガチャチケット獲得）
 // --------------------------------------------------
 function handleSubmitClick() {
   const q = currentStageQuestions[currentQIdx];
   const blankKeys = Object.keys(q.blanks);
 
-  // 空欄チェック
   let allFilled = true;
   blankKeys.forEach(k => {
     if (!userAnswers[k] || userAnswers[k].trim() === "") {
@@ -305,7 +301,6 @@ function handleSubmitClick() {
     return;
   }
 
-  // 正誤判定
   let isCorrect = true;
   blankKeys.forEach(k => {
     if (userAnswers[k] !== q.blanks[k].correct) {
@@ -314,15 +309,26 @@ function handleSubmitClick() {
   });
 
   if (isCorrect) {
-    // 正解！
     sounds.playSuccess();
     starCount += 10;
-    document.getElementById('star-count').innerText = starCount;
+    solvedCount++;
+    
+    // 【5問クリアごとにガチャチケット 1枚 獲得！】
+    let ticketEarnedNotice = "";
+    if (solvedCount % 5 === 0) {
+      gachaTickets++;
+      sounds.playFanfare();
+      ticketEarnedNotice = `<div style="background:#FEF3C7; color:#D97706; border:2px dashed #F59E0B; padding:10px; border-radius:12px; font-weight:900; margin-top:10px;">🎁 5問正解達成！ ガチャチケット1枚GET！</div>`;
+    }
+
+    saveStats();
+    updateHeaderStats();
 
     document.getElementById('result-modal-icon').innerText = "🎉";
     document.getElementById('result-modal-title').innerText = "Kurwa! 大正解！！";
     document.getElementById('result-modal-body').innerHTML = `
-      <p style="color: var(--success); font-size: 1.3rem; font-weight:900; margin-bottom:10px;">⭐ スター10個ゲット！</p>
+      <p style="color: var(--success); font-size: 1.3rem; font-weight:900; margin-bottom:10px;">⭐ スター10個ゲット！ (通算 ${solvedCount} 問正解)</p>
+      ${ticketEarnedNotice}
       ${q.explanation}
     `;
 
@@ -335,7 +341,6 @@ function handleSubmitClick() {
     openModal('result-modal');
 
   } else {
-    // 不正解
     sounds.playRetry();
     document.getElementById('result-modal-icon').innerText = "🤔";
     document.getElementById('result-modal-title').innerText = "おしい！もう一息！";
@@ -351,7 +356,6 @@ function handleSubmitClick() {
   }
 }
 
-// 次の問題へ
 function nextQuestion() {
   closeModal('result-modal');
   document.getElementById('result-modal-next-btn').onclick = nextQuestion;
@@ -364,7 +368,6 @@ function nextQuestion() {
   }
 }
 
-// 結果画面の表示
 function showResultScreen() {
   sounds.playFanfare();
   document.getElementById('quiz-play-screen').style.display = 'none';
@@ -373,22 +376,110 @@ function showResultScreen() {
   resultScreen.style.display = 'flex';
 
   document.getElementById('result-title').innerText = "🎉 コースクリア！おめでとう！";
-  document.getElementById('result-desc').innerText = `全 ${currentStageQuestions.length} 問クリア！君は一次関数のマスターだ！`;
+  document.getElementById('result-desc').innerText = `全 ${currentStageQuestions.length} 問クリア！ガチャチケットをゲットしよう！`;
+}
 
-  // バッジ一覧
-  const badgeGrid = document.getElementById('badge-grid');
-  badgeGrid.innerHTML = '';
-  BADGES.forEach(badge => {
+// --------------------------------------------------
+// ガチャ & 200種類図鑑モーダル処理
+// --------------------------------------------------
+
+function openGachaModal() {
+  sounds.playTap();
+  const container = document.getElementById('gacha-card-result-container');
+  container.innerHTML = `
+    <div id="gacha-pack-cover" onclick="doDrawGacha()" style="cursor: pointer; background: linear-gradient(135deg, #EF4444 0%, #3B82F6 100%); color: white; width: 160px; height: 210px; border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 900; box-shadow: 0 10px 30px rgba(0,0,0,0.3); animation: float 3s infinite ease-in-out;">
+      <span style="font-size: 3.5rem;">📦</span>
+      <span>パックをタップ！</span>
+    </div>
+  `;
+  openModal('gacha-modal');
+}
+
+function doDrawGacha() {
+  if (gachaTickets <= 0) {
+    sounds.playRetry();
+    alert("ガチャチケットがありません！問題を解いて5問正解ごとにゲットしてね！");
+    return;
+  }
+
+  gachaTickets--;
+  saveStats();
+  updateHeaderStats();
+
+  const result = drawCardGacha();
+  const card = result.card;
+
+  if (card.rarity === 'SSR') {
+    sounds.playFanfare();
+  } else {
+    sounds.playSuccess();
+  }
+
+  const container = document.getElementById('gacha-card-result-container');
+  container.innerHTML = `
+    <div class="gacha-card-result rarity-${card.rarity}">
+      <div style="font-size: 0.85rem; font-weight: 900; color: ${card.rarityBorder};">${card.rarityName}</div>
+      <div style="font-size: 4rem;">${card.flag}</div>
+      <div style="font-size: 1.1rem; font-weight: 900;">${card.title}</div>
+      <div style="font-size: 0.8rem; opacity: 0.9;">${card.desc}</div>
+      ${result.isNew ? '<div style="background:#EF4444; color:white; font-weight:900; font-size:0.8rem; padding:2px 10px; border-radius:50px;">NEW!</div>' : ''}
+    </div>
+  `;
+}
+
+// カード図鑑表示
+let currentCollectionFilter = 'ALL';
+
+function openCardCollectionModal() {
+  sounds.playTap();
+  renderCardCollectionGrid();
+  openModal('collection-modal');
+}
+
+function filterCardCollection(filter) {
+  sounds.playTap();
+  currentCollectionFilter = filter;
+
+  document.querySelectorAll('.rarity-tabs .tab-btn').forEach(btn => {
+    btn.classList.remove('active');
+    if (btn.innerText.includes(filter) || (filter === 'ALL' && btn.innerText === 'すべて')) {
+      btn.classList.add('active');
+    }
+  });
+
+  renderCardCollectionGrid();
+}
+
+function renderCardCollectionGrid() {
+  const stats = getCardCollectionStats();
+  document.getElementById('collection-stats-text').innerText = `${stats.ownedCount} / ${stats.totalCount} 枚 (${stats.percent}%)`;
+
+  const container = document.getElementById('card-collection-grid');
+  container.innerHTML = '';
+
+  let list = CARD_DATABASE;
+  if (currentCollectionFilter !== 'ALL') {
+    list = CARD_DATABASE.filter(c => c.rarity === currentCollectionFilter);
+  }
+
+  list.forEach(card => {
+    const isOwned = !!userOwnedCards[card.id];
+    const count = userOwnedCards[card.id] || 0;
+
     const item = document.createElement('div');
-    item.className = 'badge-item celebrate-anim';
+    item.className = `pb-card-item ${isOwned ? '' : 'unowned'}`;
+    item.style.background = card.rarityBg;
+    item.style.border = `3px solid ${card.rarityBorder}`;
+
     item.innerHTML = `
-      <div class="badge-flag">${badge.flag}</div>
-      <div class="badge-name">${badge.name}</div>
+      <div class="pb-card-rarity" style="background: ${card.rarityBorder};">${card.rarity}</div>
+      <div class="pb-card-flag">${card.flag}</div>
+      <div class="pb-card-title">${card.countryName}</div>
+      ${isOwned ? `<div style="font-size: 0.7rem; font-weight: 800; color: #475569;">x${count}枚</div>` : '<div style="font-size: 0.75rem; color:#94A3B8;">未獲得</div>'}
     `;
-    badgeGrid.appendChild(item);
+    container.appendChild(item);
   });
 }
 
-// モーダルユーティリティ
 function openModal(id) { document.getElementById(id).classList.add('active'); }
 function closeModal(id) { sounds.playTap(); document.getElementById(id).classList.remove('active'); }

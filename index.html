@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>ポーランドボールと学ぼう！中2一次関数（全46問）</title>
+  <title>ポーランドボールと学ぼう！中2一次関数（カード200種）</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,15 +11,15 @@
   <div id="app-container">
     <!-- ヘッダー -->
     <header class="app-header">
-      <div class="header-brand">
-        <img src="images/polandball.jpg" alt="ポーランドボール" class="header-logo" onclick="showStageSelect()">
+      <div class="header-brand" onclick="showStageSelect()">
+        <img src="images/polandball.jpg" alt="ポーランドボール" class="header-logo">
         <div class="header-title">
           <h1>一次関数マスター！</h1>
-          <p id="sub-title">全46問スペシャル版</p>
+          <p id="sub-title">カード全200種類コンプを目指せ！</p>
         </div>
       </div>
       <div class="header-stats">
-        <button class="btn-stage-select" onclick="showStageSelect()">コース選択</button>
+        <button class="btn-stage-select" onclick="openCardCollectionModal()">🎴 図鑑 (<span id="collection-percent">0%</span>)</button>
         <div class="stat-badge">
           <span>⭐</span>
           <span id="star-count">0</span>
@@ -32,8 +32,21 @@
 
       <!-- コース・ステージ選択画面 -->
       <div class="stage-select-screen" id="stage-select-screen">
-        <h2 style="font-size: 1.4rem; font-weight: 900; color: var(--primary); text-align: center; margin-bottom: 12px;">
-          好きなコースをえらんでね！（全46問）
+        <div class="gacha-ticket-banner" onclick="openGachaModal()" style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: white; padding: 14px 20px; border-radius: 20px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4);">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 2rem;">🎁</span>
+            <div>
+              <div style="font-weight: 900; font-size: 1.1rem;">ポーランドボール ガチャチケット</div>
+              <div style="font-size: 0.85rem; opacity: 0.9;">5問クリアするごとにガチャが引けるよ！</div>
+            </div>
+          </div>
+          <div style="background: white; color: #D97706; font-weight: 900; padding: 6px 14px; border-radius: 50px; font-size: 0.9rem;" id="ticket-count-btn">
+            チケット: <span id="ticket-count">0</span> 枚
+          </div>
+        </div>
+
+        <h2 style="font-size: 1.3rem; font-weight: 900; color: var(--primary); text-align: center; margin-top: 6px;">
+          好きなコースを選んで解こう！（全46問）
         </h2>
         <div class="stage-grid" id="stage-grid">
           <!-- JSで動的生成 -->
@@ -42,7 +55,6 @@
 
       <!-- クイズプレイ画面 (初期非表示) -->
       <div id="quiz-play-screen" style="display: none; flex-direction: column; gap: 20px;">
-
         <!-- 進捗バー -->
         <div class="progress-section">
           <button onclick="showStageSelect()" style="background:none; border:none; font-size:1.2rem; cursor:pointer;">🏠</button>
@@ -89,25 +101,71 @@
         </div>
       </div>
 
-      <!-- 全問/ステージクリア結果画面 (初期非表示) -->
+      <!-- クリア結果画面 (初期非表示) -->
       <div class="result-screen" id="result-screen" style="display: none;">
         <img src="images/banner.jpg" alt="バンナー" class="result-banner-img celebrate-anim">
         <h2 style="font-size: 1.8rem; font-weight: 900; color: var(--primary);" id="result-title">🎉 コースクリア！おめでとう！</h2>
         <p style="font-size: 1.1rem; font-weight: 700;" id="result-desc">君は一次関数のマスターだ！</p>
         
-        <div style="width: 100%;">
-          <h3 style="margin-bottom: 12px; font-weight: 900;">🏆 ゲットした国旗バッジコレクション</h3>
-          <div class="badge-grid" id="badge-grid">
-            <!-- JSで動的追加 -->
-          </div>
-        </div>
+        <button class="btn-submit" onclick="openGachaModal()" style="margin-top: 10px; width: 90%; background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);">
+          <span>🎁 ガチャを引いてカードGET！</span>
+        </button>
 
-        <button class="btn-submit" onclick="showStageSelect()" style="margin-top: 20px; width: 80%;">
+        <button class="btn-submit" onclick="showStageSelect()" style="margin-top: 10px; width: 90%;">
           <span>🗺️ コース選択へもどる</span>
         </button>
       </div>
 
     </main>
+  </div>
+
+  <!-- ガチャ開封モーダル -->
+  <div class="modal-overlay" id="gacha-modal">
+    <div class="modal-card" style="text-align: center;">
+      <div class="modal-header">
+        <span style="font-size: 2.5rem;">🎁</span>
+        <h3>ポーランドボール ガチャパック</h3>
+      </div>
+      <div class="modal-body" style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
+        <p>ガチャチケットを消费してカードを開封するよ！</p>
+        <div id="gacha-card-result-container" style="min-height: 220px; display: flex; align-items: center; justify-content: center; width: 100%;">
+          <!-- ガチャ演出/結果表示 -->
+          <div id="gacha-pack-cover" onclick="doDrawGacha()" style="cursor: pointer; background: linear-gradient(135deg, #EF4444 0%, #3B82F6 100%); color: white; width: 160px; height: 210px; border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 900; box-shadow: 0 10px 30px rgba(0,0,0,0.3); animation: float 3s infinite ease-in-out;">
+            <span style="font-size: 3.5rem;">📦</span>
+            <span>パックをタップ！</span>
+          </div>
+        </div>
+      </div>
+      <button class="btn-modal-close" onclick="closeModal('gacha-modal')">とじる</button>
+    </div>
+  </div>
+
+  <!-- 200種類図鑑モーダル -->
+  <div class="modal-overlay" id="collection-modal">
+    <div class="modal-card" style="max-width: 680px; max-height: 85vh; overflow-y: auto;">
+      <div class="modal-header">
+        <span style="font-size: 2rem;">🎴</span>
+        <h3>ポーランドボール 図鑑 (全200種)</h3>
+      </div>
+      <div style="font-weight: 800; color: var(--secondary); margin-bottom: 10px;">
+        獲得率: <span id="collection-stats-text">0 / 200 枚 (0%)</span>
+      </div>
+      
+      <!-- レア度フィルタータブ -->
+      <div class="rarity-tabs">
+        <button class="tab-btn active" onclick="filterCardCollection('ALL')">すべて</button>
+        <button class="tab-btn" onclick="filterCardCollection('N')">N</button>
+        <button class="tab-btn" onclick="filterCardCollection('R')">R</button>
+        <button class="tab-btn" onclick="filterCardCollection('SR')">SR</button>
+        <button class="tab-btn" onclick="filterCardCollection('SSR')">✨SSR</button>
+      </div>
+
+      <div class="card-collection-grid" id="card-collection-grid">
+        <!-- JSで200枚のカードカード枠生成 -->
+      </div>
+
+      <button class="btn-modal-close" onclick="closeModal('collection-modal')" style="margin-top: 16px;">とじる</button>
+    </div>
   </div>
 
   <!-- ヒントモーダル -->
@@ -176,6 +234,7 @@
 
   <!-- JS スクリプト読み込み -->
   <script src="questions.js"></script>
+  <script src="cards.js"></script>
   <script src="sound.js"></script>
   <script src="app.js"></script>
 </body>
