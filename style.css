@@ -1,5 +1,5 @@
 /* ----------------------------------------------------
-   ポーランドボールと学ぼう！一次関数アプリ CSS (iPad表示レスポンシブ最適化版)
+   ポーランドボールと学ぼう！一次関数アプリ CSS (イラスト＆キャンセル対応)
    ---------------------------------------------------- */
 @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800;900&display=swap');
 
@@ -33,7 +33,6 @@ html, body {
   overflow-y: auto;
 }
 
-/* アプリコンテナ（iPadなどの高さ画面に対応） */
 #app-container {
   width: 100%;
   max-width: 900px;
@@ -46,10 +45,9 @@ html, body {
   position: relative;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  padding-bottom: 80px; /* iPad下部スクロール余白 */
+  padding-bottom: 80px;
 }
 
-/* ヘッダー */
 .app-header {
   background: linear-gradient(135deg, #DC2626 0%, #EF4444 50%, #F87171 100%);
   color: white;
@@ -125,7 +123,6 @@ html, body {
   gap: 6px;
 }
 
-/* メインコンテンツ */
 .main-content {
   flex: 1;
   padding: 20px;
@@ -135,7 +132,6 @@ html, body {
   overflow-y: visible;
 }
 
-/* ステージ選択画面 */
 .stage-select-screen {
   display: flex;
   flex-direction: column;
@@ -206,7 +202,6 @@ html, body {
   font-weight: 900;
 }
 
-/* 進捗バー */
 .progress-section {
   display: flex;
   align-items: center;
@@ -239,7 +234,6 @@ html, body {
   color: var(--text-muted);
 }
 
-/* ポーランドボールキャラクターダイアログ */
 .character-banner {
   display: flex;
   align-items: center;
@@ -289,7 +283,6 @@ html, body {
   border-right: 12px solid white;
 }
 
-/* 問題カード */
 .question-card {
   background: white;
   border: 3px solid #E2E8F0;
@@ -320,7 +313,6 @@ html, body {
   font-weight: 700;
 }
 
-/* 数式・穴埋めカード表示 */
 .math-card {
   background: #F8FAFC;
   border: 2px solid #CBD5E1;
@@ -368,7 +360,6 @@ html, body {
   border-radius: 8px;
 }
 
-/* 穴埋めボタン */
 .blank-btn {
   background: #FFFFFF;
   border: 3px dashed var(--primary);
@@ -397,7 +388,6 @@ html, body {
   color: var(--secondary);
 }
 
-/* テーブルデザイン */
 .table-container {
   width: 100%;
   overflow-x: auto;
@@ -427,7 +417,6 @@ html, body {
   width: 15%;
 }
 
-/* グラフキャンバスコンテナ */
 .graph-container {
   width: 100%;
   height: 200px;
@@ -446,7 +435,6 @@ canvas#graphCanvas {
   height: 100%;
 }
 
-/* アクションボタンバー */
 .action-bar {
   display: flex;
   gap: 16px;
@@ -496,7 +484,6 @@ canvas#graphCanvas {
   box-shadow: 0 2px 0px rgba(0,0,0,0.2);
 }
 
-/* ポップアップ・モーダル */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -544,11 +531,13 @@ canvas#graphCanvas {
   display: flex;
   align-items: center;
   gap: 12px;
-  justify-content: center;
+  justify-content: space-between;
+  border-bottom: 2px solid #F1F5F9;
+  padding-bottom: 12px;
 }
 
 .modal-header h3 {
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   font-weight: 900;
 }
 
@@ -576,7 +565,41 @@ canvas#graphCanvas {
   box-shadow: 0 4px 0 #B91C1C;
 }
 
-/* カード図鑑グリッド & カードデザイン */
+/* ポーランドボールアバターグラフィック */
+.polandball-avatar-graphic {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  overflow: hidden;
+}
+
+.polandball-avatar-graphic .flag-icon {
+  font-size: 2.2rem;
+  z-index: 1;
+}
+
+.polandball-avatar-graphic .pb-eyes {
+  position: absolute;
+  top: 14px;
+  display: flex;
+  gap: 8px;
+  z-index: 2;
+}
+
+.polandball-avatar-graphic .pb-eye {
+  width: 10px;
+  height: 12px;
+  background: white;
+  border-radius: 50%;
+  border: 2px solid #1E293B;
+}
+
+/* カード図鑑 */
 .rarity-tabs {
   display: flex;
   gap: 8px;
@@ -628,10 +651,6 @@ canvas#graphCanvas {
   opacity: 0.4;
 }
 
-.pb-card-flag {
-  font-size: 2rem;
-}
-
 .pb-card-rarity {
   font-weight: 900;
   font-size: 0.8rem;
@@ -645,7 +664,6 @@ canvas#graphCanvas {
   font-weight: 800;
 }
 
-/* ガチャ結果カード演出 */
 .gacha-card-result {
   border-radius: 24px;
   padding: 20px;
@@ -680,7 +698,7 @@ canvas#graphCanvas {
   border: 4px solid #94A3B8;
 }
 
-/* iPad用オンスクリーンテンキーパッド */
+/* テンキーパッド */
 .keypad-sheet {
   position: fixed;
   bottom: -100%;
@@ -771,7 +789,6 @@ canvas#graphCanvas {
   box-shadow: 0 5px 0px #1E40AF;
 }
 
-/* 選択肢モーダル用オプションリスト */
 .options-grid {
   display: flex;
   flex-direction: column;
@@ -800,7 +817,6 @@ canvas#graphCanvas {
   transform: translateX(4px);
 }
 
-/* 結果画面 */
 .result-screen {
   display: flex;
   flex-direction: column;
@@ -817,7 +833,6 @@ canvas#graphCanvas {
   box-shadow: var(--shadow-soft);
 }
 
-/* アニメーション定義 */
 @keyframes float {
   0%, 100% { transform: translateY(0px) rotate(0deg); }
   50% { transform: translateY(-8px) rotate(3deg); }

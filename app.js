@@ -1,4 +1,4 @@
-// メインアプリケーションロジック (全46問・iOS Safari完全防御版)
+// メインアプリケーションロジック (全46問・バグ修正＆モーダルキャンセル追加版)
 let currentStageQuestions = [];
 let currentQIdx = 0;
 let userAnswers = {};
@@ -20,11 +20,22 @@ function saveStats() {
   safeSetItem('polandball_solved_count', solvedCount.toString());
 }
 
-// ページロード時初期化
 function initApp() {
   renderStageGrid();
   updateHeaderStats();
   showStageSelect();
+  setupModalOverlayClick();
+}
+
+// モーダル背景タップで閉じる処理
+function setupModalOverlayClick() {
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) {
+        closeModal(overlay.id);
+      }
+    });
+  });
 }
 
 if (document.readyState === 'loading') {
@@ -305,6 +316,8 @@ function handleSubmitClick() {
     }
   });
 
+  const nextBtn = document.getElementById('result-modal-next-btn');
+
   if (isCorrect) {
     sounds.playSuccess();
     starCount += 10;
@@ -328,10 +341,13 @@ function handleSubmitClick() {
       ${q.explanation}
     `;
 
+    // ★重要バグ修正★: 正解したときは必ず onclick を nextQuestion に戻す！
+    nextBtn.onclick = nextQuestion;
+
     if (currentQIdx === currentStageQuestions.length - 1) {
-      document.getElementById('result-modal-next-btn').innerText = "🏆 コースクリア画面へ！";
+      nextBtn.innerText = "🏆 コースクリア画面へ！";
     } else {
-      document.getElementById('result-modal-next-btn').innerText = "つぎの問題へ！ ➔";
+      nextBtn.innerText = "つぎの問題へ！ ➔";
     }
 
     openModal('result-modal');
@@ -346,16 +362,14 @@ function handleSubmitClick() {
         ${q.hint2}
       </div>
     `;
-    document.getElementById('result-modal-next-btn').innerText = "もう一度やる！";
-    document.getElementById('result-modal-next-btn').onclick = () => closeModal('result-modal');
+    nextBtn.innerText = "もう一度やる！";
+    nextBtn.onclick = () => closeModal('result-modal');
     openModal('result-modal');
   }
 }
 
 function nextQuestion() {
   closeModal('result-modal');
-  document.getElementById('result-modal-next-btn').onclick = nextQuestion;
-
   if (currentQIdx < currentStageQuestions.length - 1) {
     currentQIdx++;
     loadQuestion(currentQIdx);
@@ -411,7 +425,7 @@ function doDrawGacha() {
   container.innerHTML = `
     <div class="gacha-card-result rarity-${card.rarity}">
       <div style="font-size: 0.85rem; font-weight: 900; color: ${card.rarityBorder};">${card.rarityName}</div>
-      <div style="font-size: 4rem;">${card.flag}</div>
+      <div class="pb-card-illustration">${renderCardIllustration(card)}</div>
       <div style="font-size: 1.1rem; font-weight: 900;">${card.title}</div>
       <div style="font-size: 0.8rem; opacity: 0.9;">${card.desc}</div>
       ${result.isNew ? '<div style="background:#EF4444; color:white; font-weight:900; font-size:0.8rem; padding:2px 10px; border-radius:50px;">NEW!</div>' : ''}
@@ -464,12 +478,30 @@ function renderCardCollectionGrid() {
 
     item.innerHTML = `
       <div class="pb-card-rarity" style="background: ${card.rarityBorder};">${card.rarity}</div>
-      <div class="pb-card-flag">${card.flag}</div>
+      <div class="pb-card-illustration">${renderCardIllustration(card)}</div>
       <div class="pb-card-title">${card.countryName}</div>
       ${isOwned ? `<div style="font-size: 0.7rem; font-weight: 800; color: #475569;">x${count}枚</div>` : '<div style="font-size: 0.75rem; color:#94A3B8;">未獲得</div>'}
     `;
     container.appendChild(item);
   });
+}
+
+// ポーランドボールのイラストグラフィック描画関数
+function renderCardIllustration(card) {
+  if (card.image) {
+    return `<img src="${card.image}" alt="${card.countryName}" style="width:70px; height:70px; border-radius:50%; border:3px solid white; box-shadow:0 4px 10px rgba(0,0,0,0.15); object-fit:cover;">`;
+  } else {
+    // スタイリッシュな球体ポーランドボールキャラグラフィック (国旗＋くりくりお目め)
+    return `
+      <div class="polandball-avatar-graphic" style="background:${card.color || '#E2E8F0'}; border:3px solid white;">
+        <span class="flag-icon">${card.flag}</span>
+        <div class="pb-eyes">
+          <div class="pb-eye"></div>
+          <div class="pb-eye"></div>
+        </div>
+      </div>
+    `;
+  }
 }
 
 function openModal(id) { document.getElementById(id).classList.add('active'); }

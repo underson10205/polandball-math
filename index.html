@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>ポーランドボールと学ぼう！中2一次関数（カード200種）</title>
-  <link rel="stylesheet" href="style.css?v=3">
+  <link rel="stylesheet" href="style.css?v=4">
 </head>
 <body>
 
@@ -50,7 +50,6 @@
         </h2>
         
         <div class="stage-grid" id="stage-grid">
-          <!-- フォールバック用HTMLカード (JSロード前でも必ず表示される) -->
           <div class="stage-card" onclick="startStage(1)">
             <div class="stage-info">
               <div class="stage-icon">📐</div>
@@ -168,6 +167,7 @@
       <div class="modal-header">
         <span style="font-size: 2.5rem;">🎁</span>
         <h3>ポーランドボール ガチャパック</h3>
+        <button onclick="closeModal('gacha-modal')" style="background:none; border:none; font-size:1.5rem; font-weight:bold; cursor:pointer;">✕</button>
       </div>
       <div class="modal-body" style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
         <p>ガチャチケットを消費してカードを開封するよ！</p>
@@ -188,6 +188,7 @@
       <div class="modal-header">
         <span style="font-size: 2rem;">🎴</span>
         <h3>ポーランドボール 図鑑 (全200種)</h3>
+        <button onclick="closeModal('collection-modal')" style="background:none; border:none; font-size:1.5rem; font-weight:bold; cursor:pointer;">✕</button>
       </div>
       <div style="font-weight: 800; color: var(--secondary); margin-bottom: 10px;">
         獲得率: <span id="collection-stats-text">0 / 200 枚 (0%)</span>
@@ -213,6 +214,7 @@
       <div class="modal-header">
         <span style="font-size: 2rem;">💡</span>
         <h3 id="hint-modal-title">ポーランドボールからのヒント</h3>
+        <button onclick="closeModal('hint-modal')" style="background:none; border:none; font-size:1.5rem; font-weight:bold; cursor:pointer;">✕</button>
       </div>
       <div class="modal-body" id="hint-modal-body">
         ヒント内容がここに入ります。
@@ -240,8 +242,10 @@
     <div class="modal-card">
       <div class="modal-header">
         <h3>あてはまる言葉を選んでね！</h3>
+        <button onclick="closeModal('choice-modal')" style="background:none; border:none; font-size:1.5rem; font-weight:bold; cursor:pointer; color:#64748B;">✕ とじる</button>
       </div>
       <div class="options-grid" id="choice-options"></div>
+      <button class="btn-modal-close" onclick="closeModal('choice-modal')" style="background:#64748B; box-shadow:0 4px 0 #475569; margin-top:8px;">キャンセルして閉じる</button>
     </div>
   </div>
 
@@ -249,7 +253,7 @@
   <div class="keypad-sheet" id="keypad-sheet">
     <div class="keypad-header">
       <span class="keypad-title">数字を入力しよう</span>
-      <button onclick="closeKeypad()" style="background:none; border:none; font-size:1.5rem; font-weight:bold; cursor:pointer;">✕</button>
+      <button onclick="closeKeypad()" style="background:none; border:none; font-size:1.5rem; font-weight:bold; cursor:pointer;">✕ とじる</button>
     </div>
     <div class="keypad-display" id="keypad-display"></div>
     <div class="keypad-grid">
@@ -269,10 +273,10 @@
     </div>
   </div>
 
-  <!-- JS スクリプト読み込み (バージョン付与で強固にキャッシュクリア) -->
-  <script src="questions.js?v=3"></script>
-  <script src="cards.js?v=3"></script>
-  <script src="sound.js?v=3"></script>
-  <script src="app.js?v=3"></script>
+  <!-- JS スクリプト読み込み -->
+  <script src="questions.js?v=4"></script>
+  <script src="cards.js?v=4"></script>
+  <script src="sound.js?v=4"></script>
+  <script src="app.js?v=4"></script>
 </body>
 </html>
