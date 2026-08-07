@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>ポーランドボールと学ぼう！中2一次関数（カード200種）</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
 
@@ -31,7 +31,7 @@
     <main class="main-content">
 
       <!-- コース・ステージ選択画面 -->
-      <div class="stage-select-screen" id="stage-select-screen">
+      <div class="stage-select-screen" id="stage-select-screen" style="display: flex;">
         <div class="gacha-ticket-banner" onclick="openGachaModal()" style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: white; padding: 14px 20px; border-radius: 20px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4);">
           <div style="display: flex; align-items: center; gap: 12px;">
             <span style="font-size: 2rem;">🎁</span>
@@ -48,14 +48,64 @@
         <h2 style="font-size: 1.3rem; font-weight: 900; color: var(--primary); text-align: center; margin-top: 6px;">
           好きなコースを選んで解こう！（全46問）
         </h2>
+        
         <div class="stage-grid" id="stage-grid">
-          <!-- JSで動的生成 -->
+          <!-- フォールバック用HTMLカード (JSロード前でも必ず表示される) -->
+          <div class="stage-card" onclick="startStage(1)">
+            <div class="stage-info">
+              <div class="stage-icon">📐</div>
+              <div>
+                <div class="stage-name" style="color: #FF4B4B;">ステージ1：傾きと切片</div>
+                <div class="stage-range">第1〜10問</div>
+              </div>
+            </div>
+            <div class="stage-arrow">➔</div>
+          </div>
+          <div class="stage-card" onclick="startStage(2)">
+            <div class="stage-info">
+              <div class="stage-icon">🔢</div>
+              <div>
+                <div class="stage-name" style="color: #3B82F6;">ステージ2：代入計算</div>
+                <div class="stage-range">第11〜20問</div>
+              </div>
+            </div>
+            <div class="stage-arrow">➔</div>
+          </div>
+          <div class="stage-card" onclick="startStage(3)">
+            <div class="stage-info">
+              <div class="stage-icon">📊</div>
+              <div>
+                <div class="stage-name" style="color: #10B981;">ステージ3：表と変化の割合</div>
+                <div class="stage-range">第21〜30問</div>
+              </div>
+            </div>
+            <div class="stage-arrow">➔</div>
+          </div>
+          <div class="stage-card" onclick="startStage(4)">
+            <div class="stage-info">
+              <div class="stage-icon">🚶</div>
+              <div>
+                <div class="stage-name" style="color: #8B5CF6;">ステージ4：グラフと文章題</div>
+                <div class="stage-range">第31〜40問</div>
+              </div>
+            </div>
+            <div class="stage-arrow">➔</div>
+          </div>
+          <div class="stage-card" onclick="startStage(5)">
+            <div class="stage-info">
+              <div class="stage-icon">👑</div>
+              <div>
+                <div class="stage-name" style="color: #F59E0B;">ステージ5：ファイナル挑戦</div>
+                <div class="stage-range">第41〜46問</div>
+              </div>
+            </div>
+            <div class="stage-arrow">➔</div>
+          </div>
         </div>
       </div>
 
       <!-- クイズプレイ画面 (初期非表示) -->
       <div id="quiz-play-screen" style="display: none; flex-direction: column; gap: 20px;">
-        <!-- 進捗バー -->
         <div class="progress-section">
           <button onclick="showStageSelect()" style="background:none; border:none; font-size:1.2rem; cursor:pointer;">🏠</button>
           <div class="progress-bar-bg">
@@ -64,7 +114,6 @@
           <div class="progress-text" id="progress-text">第 1 / 46 問</div>
         </div>
 
-        <!-- ポーランドボールキャラクターダイアログ -->
         <div class="character-banner" id="char-banner" style="background: linear-gradient(135deg, #FF4B4B 0%, #FF8585 100%);">
           <img src="images/polandball.jpg" alt="キャラ" class="character-avatar" id="char-avatar">
           <div class="speech-bubble" id="char-speech">
@@ -72,24 +121,18 @@
           </div>
         </div>
 
-        <!-- 問題カードエリア -->
         <div class="question-card" id="question-card">
           <div class="question-header">
             <h2 class="question-title" id="q-title">第1問：一次関数の【名前】を覚えよう！</h2>
             <p class="question-desc" id="q-desc">説明文がここに入ります</p>
           </div>
 
-          <!-- 式・穴埋めカード -->
-          <div id="q-equation-area">
-            <!-- JSで動的生成 -->
-          </div>
+          <div id="q-equation-area"></div>
 
-          <!-- 視覚化グラフエリア -->
           <div class="graph-container">
             <canvas id="graphCanvas"></canvas>
           </div>
 
-          <!-- アクションボタンエリア (①やってみる → ②わからない → ③解答) -->
           <div class="action-bar">
             <button class="btn-hint" onclick="handleHintClick()">
               <span>💡 わからない</span>
@@ -127,9 +170,8 @@
         <h3>ポーランドボール ガチャパック</h3>
       </div>
       <div class="modal-body" style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
-        <p>ガチャチケットを消费してカードを開封するよ！</p>
+        <p>ガチャチケットを消費してカードを開封するよ！</p>
         <div id="gacha-card-result-container" style="min-height: 220px; display: flex; align-items: center; justify-content: center; width: 100%;">
-          <!-- ガチャ演出/結果表示 -->
           <div id="gacha-pack-cover" onclick="doDrawGacha()" style="cursor: pointer; background: linear-gradient(135deg, #EF4444 0%, #3B82F6 100%); color: white; width: 160px; height: 210px; border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 900; box-shadow: 0 10px 30px rgba(0,0,0,0.3); animation: float 3s infinite ease-in-out;">
             <span style="font-size: 3.5rem;">📦</span>
             <span>パックをタップ！</span>
@@ -151,7 +193,6 @@
         獲得率: <span id="collection-stats-text">0 / 200 枚 (0%)</span>
       </div>
       
-      <!-- レア度フィルタータブ -->
       <div class="rarity-tabs">
         <button class="tab-btn active" onclick="filterCardCollection('ALL')">すべて</button>
         <button class="tab-btn" onclick="filterCardCollection('N')">N</button>
@@ -160,9 +201,7 @@
         <button class="tab-btn" onclick="filterCardCollection('SSR')">✨SSR</button>
       </div>
 
-      <div class="card-collection-grid" id="card-collection-grid">
-        <!-- JSで200枚のカードカード枠生成 -->
-      </div>
+      <div class="card-collection-grid" id="card-collection-grid"></div>
 
       <button class="btn-modal-close" onclick="closeModal('collection-modal')" style="margin-top: 16px;">とじる</button>
     </div>
@@ -202,9 +241,7 @@
       <div class="modal-header">
         <h3>あてはまる言葉を選んでね！</h3>
       </div>
-      <div class="options-grid" id="choice-options">
-        <!-- JSで選択肢ボタン生成 -->
-      </div>
+      <div class="options-grid" id="choice-options"></div>
     </div>
   </div>
 
@@ -232,10 +269,10 @@
     </div>
   </div>
 
-  <!-- JS スクリプト読み込み -->
-  <script src="questions.js"></script>
-  <script src="cards.js"></script>
-  <script src="sound.js"></script>
-  <script src="app.js"></script>
+  <!-- JS スクリプト読み込み (バージョン付与で強固にキャッシュクリア) -->
+  <script src="questions.js?v=3"></script>
+  <script src="cards.js?v=3"></script>
+  <script src="sound.js?v=3"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>

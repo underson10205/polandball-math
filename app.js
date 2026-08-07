@@ -1,4 +1,4 @@
-// メインアプリケーションロジック (全46問・200種カードガチャ機能付き)
+// メインアプリケーションロジック (全46問・iOS Safari完全防御版)
 let currentStageQuestions = [];
 let currentQIdx = 0;
 let userAnswers = {};
@@ -7,39 +7,44 @@ let starCount = 0;
 let keypadValue = "";
 let currentStageId = 1;
 
-// ユーザーの回答記録・ガチャチケット管理
 let solvedCount = 0;
 let gachaTickets = 0;
 
-try {
-  const savedTickets = localStorage.getItem('polandball_gacha_tickets');
-  if (savedTickets) gachaTickets = parseInt(savedTickets, 10);
-  const savedSolved = localStorage.getItem('polandball_solved_count');
-  if (savedSolved) solvedCount = parseInt(savedSolved, 10);
-} catch (e) {}
+const savedTicketsStr = safeGetItem('polandball_gacha_tickets');
+if (savedTicketsStr) gachaTickets = parseInt(savedTicketsStr, 10) || 0;
+const savedSolvedStr = safeGetItem('polandball_solved_count');
+if (savedSolvedStr) solvedCount = parseInt(savedSolvedStr, 10) || 0;
 
 function saveStats() {
-  try {
-    localStorage.setItem('polandball_gacha_tickets', gachaTickets.toString());
-    localStorage.setItem('polandball_solved_count', solvedCount.toString());
-  } catch (e) {}
+  safeSetItem('polandball_gacha_tickets', gachaTickets.toString());
+  safeSetItem('polandball_solved_count', solvedCount.toString());
 }
 
-// ページロード時の初期化
-window.addEventListener('DOMContentLoaded', () => {
+// ページロード時初期化
+function initApp() {
   renderStageGrid();
   updateHeaderStats();
   showStageSelect();
-});
-
-function updateHeaderStats() {
-  const stats = getCardCollectionStats();
-  document.getElementById('collection-percent').innerText = `${stats.percent}% (${stats.ownedCount}/200)`;
-  document.getElementById('ticket-count').innerText = gachaTickets;
-  document.getElementById('star-count').innerText = starCount;
 }
 
-// ステージ選択画面の生成
+if (document.readyState === 'loading') {
+  window.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
+
+function updateHeaderStats() {
+  try {
+    const stats = getCardCollectionStats();
+    const percentEl = document.getElementById('collection-percent');
+    if (percentEl) percentEl.innerText = `${stats.percent}% (${stats.ownedCount}/200)`;
+    const ticketEl = document.getElementById('ticket-count');
+    if (ticketEl) ticketEl.innerText = gachaTickets;
+    const starEl = document.getElementById('star-count');
+    if (starEl) starEl.innerText = starCount;
+  } catch (e) {}
+}
+
 function renderStageGrid() {
   const container = document.getElementById('stage-grid');
   if (!container) return;
@@ -66,9 +71,12 @@ function renderStageGrid() {
 function showStageSelect() {
   sounds.playTap();
   updateHeaderStats();
-  document.getElementById('stage-select-screen').style.display = 'flex';
-  document.getElementById('quiz-play-screen').style.display = 'none';
-  document.getElementById('result-screen').style.display = 'none';
+  const selectScreen = document.getElementById('stage-select-screen');
+  if (selectScreen) selectScreen.style.display = 'flex';
+  const playScreen = document.getElementById('quiz-play-screen');
+  if (playScreen) playScreen.style.display = 'none';
+  const resultScreen = document.getElementById('result-screen');
+  if (resultScreen) resultScreen.style.display = 'none';
 }
 
 function startStage(stageId) {
@@ -111,7 +119,6 @@ function loadQuestion(index) {
   renderGraph(q.graphData);
 }
 
-// Canvas グラフ描画機能
 function renderGraph(graphData) {
   const canvas = document.getElementById('graphCanvas');
   if (!canvas) return;
@@ -178,10 +185,6 @@ function renderGraph(graphData) {
     }
   }
 }
-
-// --------------------------------------------------
-// iPadテンキー＆選択肢モーダル操作
-// --------------------------------------------------
 
 function openKeypadModal(blankId) {
   sounds.playTap();
@@ -270,9 +273,6 @@ function selectChoice(value) {
   activeBlankId = null;
 }
 
-// --------------------------------------------------
-// ② 「わからない」ボタン
-// --------------------------------------------------
 function handleHintClick() {
   sounds.playHint();
   const q = currentStageQuestions[currentQIdx];
@@ -281,9 +281,6 @@ function handleHintClick() {
   openModal('hint-modal');
 }
 
-// --------------------------------------------------
-// ③ 「解答する！」ボタン（正誤判定＆5問ごとのガチャチケット獲得）
-// --------------------------------------------------
 function handleSubmitClick() {
   const q = currentStageQuestions[currentQIdx];
   const blankKeys = Object.keys(q.blanks);
@@ -313,7 +310,6 @@ function handleSubmitClick() {
     starCount += 10;
     solvedCount++;
     
-    // 【5問クリアごとにガチャチケット 1枚 獲得！】
     let ticketEarnedNotice = "";
     if (solvedCount % 5 === 0) {
       gachaTickets++;
@@ -379,10 +375,6 @@ function showResultScreen() {
   document.getElementById('result-desc').innerText = `全 ${currentStageQuestions.length} 問クリア！ガチャチケットをゲットしよう！`;
 }
 
-// --------------------------------------------------
-// ガチャ & 200種類図鑑モーダル処理
-// --------------------------------------------------
-
 function openGachaModal() {
   sounds.playTap();
   const container = document.getElementById('gacha-card-result-container');
@@ -427,7 +419,6 @@ function doDrawGacha() {
   `;
 }
 
-// カード図鑑表示
 let currentCollectionFilter = 'ALL';
 
 function openCardCollectionModal() {

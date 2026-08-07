@@ -1,6 +1,20 @@
-// ポーランドボール カードコレクション & ガチャシステム (全200種類)
+// ポーランドボール カードコレクション & ガチャシステム (全200種類) - iOS Safari 安全対策版
 
-// 50の国・地域リスト
+// 安全な Storage アクセスラッパー (iOS Safari プライベートモード対策)
+function safeGetItem(key) {
+  try {
+    return localStorage.getItem(key);
+  } catch (e) {
+    return null;
+  }
+}
+
+function safeSetItem(key, value) {
+  try {
+    localStorage.setItem(key, value);
+  } catch (e) {}
+}
+
 const COUNTRIES = [
   { code: "PL", name: "ポーランド", flag: "🇵🇱", desc: "一次関数の冒険者！" },
   { code: "JP", name: "日本", flag: "🇯🇵", desc: "計算速度世界一！" },
@@ -54,7 +68,6 @@ const COUNTRIES = [
   { code: "PB", name: "ハイパーポーランド", flag: "👑", desc: "一次関数を極めし伝説の王！" }
 ];
 
-// レア度定義（4段階 × 50キャラ ＝ 200種類）
 const RARITIES = [
   { level: "N", name: "ノーマル", weight: 60, color: "#94A3B8", border: "#64748B", bg: "#F1F5F9" },
   { level: "R", name: "レア", weight: 25, color: "#3B82F6", border: "#2563EB", bg: "#EFF6FF" },
@@ -62,7 +75,6 @@ const RARITIES = [
   { level: "SSR", name: "ウルトラSSR", weight: 3, color: "#F59E0B", border: "#D97706", bg: "linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)" }
 ];
 
-// 200種類のカードマスターデータベースを自動生成
 const CARD_DATABASE = [];
 COUNTRIES.forEach(country => {
   RARITIES.forEach(rarity => {
@@ -82,24 +94,17 @@ COUNTRIES.forEach(country => {
   });
 });
 
-// 所持カード管理（localStorage対応）
 let userOwnedCards = {};
-try {
-  const saved = localStorage.getItem('polandball_cards_owned');
-  if (saved) userOwnedCards = JSON.parse(saved);
-} catch (e) {
-  userOwnedCards = {};
+const savedCardsStr = safeGetItem('polandball_cards_owned');
+if (savedCardsStr) {
+  try { userOwnedCards = JSON.parse(savedCardsStr) || {}; } catch(e) { userOwnedCards = {}; }
 }
 
 function saveOwnedCards() {
-  try {
-    localStorage.setItem('polandball_cards_owned', JSON.stringify(userOwnedCards));
-  } catch (e) {}
+  safeSetItem('polandball_cards_owned', JSON.stringify(userOwnedCards));
 }
 
-// ガチャを引く（1枚取得）
 function drawCardGacha() {
-  // レア度判定
   const rand = Math.random() * 100;
   let selectedRarity = "N";
   let cumulative = 0;
@@ -112,11 +117,9 @@ function drawCardGacha() {
     }
   }
 
-  // 該当レア度のカード候補からランダム抽出
   const candidates = CARD_DATABASE.filter(c => c.rarity === selectedRarity);
   const drawnCard = candidates[Math.floor(Math.random() * candidates.length)];
 
-  // 所持判定
   const isNew = !userOwnedCards[drawnCard.id];
   userOwnedCards[drawnCard.id] = (userOwnedCards[drawnCard.id] || 0) + 1;
   saveOwnedCards();
@@ -124,10 +127,9 @@ function drawCardGacha() {
   return { card: drawnCard, isNew: isNew };
 }
 
-// 図鑑の獲得率を計算
 function getCardCollectionStats() {
   const ownedCount = Object.keys(userOwnedCards).length;
-  const totalCount = CARD_DATABASE.length; // 200
+  const totalCount = CARD_DATABASE.length;
   const percent = Math.floor((ownedCount / totalCount) * 100);
   return { ownedCount, totalCount, percent };
 }
