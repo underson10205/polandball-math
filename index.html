@@ -4,13 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>ポーランドボールと学ぼう！中2一次関数（カード200種）</title>
-  <link rel="stylesheet" href="style.css?v=20">
+  <link rel="stylesheet" href="style.css?v=20260807_9999">
 </head>
 <body>
 
+  <!-- 画面右上に常に固定表示する絶対安全ホームボタン -->
+  <button id="fixed-home-btn" onclick="forceGoHome()" style="position: fixed; top: 12px; right: 12px; z-index: 99999; background: #FF4747; color: white; border: 2px solid white; padding: 8px 16px; border-radius: 50px; font-weight: 900; font-size: 0.95rem; box-shadow: 0 4px 14px rgba(0,0,0,0.3); cursor: pointer;">
+    🏠 ホームへ戻る
+  </button>
+
   <div id="app-container">
     <header class="app-header">
-      <div class="header-brand" onclick="showStageSelect()">
+      <div class="header-brand" id="brand-home-trigger" style="cursor:pointer;">
         <img src="images/polandball.jpg" alt="ポーランドボール" class="header-logo">
         <div class="header-title">
           <h1>一次関数マスター！</h1>
@@ -18,7 +23,7 @@
         </div>
       </div>
       <div class="header-stats">
-        <button class="btn-stage-select" onclick="openCardCollectionModal()">🎴 図鑑 (<span id="collection-percent">0%</span>)</button>
+        <button class="btn-stage-select" id="btn-open-collection">🎴 図鑑 (<span id="collection-percent">0%</span>)</button>
         <div class="stat-badge">
           <span>⭐</span>
           <span id="star-count">0</span>
@@ -27,8 +32,9 @@
     </header>
 
     <main class="main-content">
+      <!-- 1. ステージ選択画面 -->
       <div class="stage-select-screen" id="stage-select-screen" style="display: flex;">
-        <div class="gacha-ticket-banner" onclick="openGachaModal()" style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: white; padding: 14px 20px; border-radius: 20px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4);">
+        <div class="gacha-ticket-banner" id="btn-open-gacha-banner" style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: white; padding: 14px 20px; border-radius: 20px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4);">
           <div style="display: flex; align-items: center; gap: 12px;">
             <span style="font-size: 2rem;">🎁</span>
             <div>
@@ -91,7 +97,7 @@
               <div class="stage-icon">👑</div>
               <div>
                 <div class="stage-name" style="color: #F59E0B;">ステージ5：ファイナル挑戦</div>
-                <div class="stage-range">第41〜46問</div>
+                <div class="stage-range">第41〜46问</div>
               </div>
             </div>
             <div class="stage-arrow">➔</div>
@@ -99,9 +105,10 @@
         </div>
       </div>
 
+      <!-- 2. クイズプレイ画面 -->
       <div id="quiz-play-screen" style="display: none; flex-direction: column; gap: 20px;">
         <div class="progress-section">
-          <button onclick="showStageSelect()" style="background:#E2E8F0; border:none; font-size:1.2rem; cursor:pointer; padding:6px 12px; border-radius:10px; font-weight:bold;">🏠 トップへ</button>
+          <button onclick="forceGoHome()" style="background:#E2E8F0; border:none; font-size:1.1rem; cursor:pointer; padding:8px 14px; border-radius:12px; font-weight:900; color:#334155;">🏠 トップへ</button>
           <div class="progress-bar-bg">
             <div class="progress-bar-fill" id="progress-fill"></div>
           </div>
@@ -128,27 +135,27 @@
           </div>
 
           <div class="action-bar">
-            <button class="btn-hint" onclick="handleHintClick()">
+            <button class="btn-hint" id="main-hint-btn">
               <span>💡 わからない</span>
             </button>
-            <button class="btn-submit" onclick="handleSubmitClick()">
+            <button class="btn-submit" id="main-submit-btn">
               <span>✨ 解答する！</span>
             </button>
           </div>
         </div>
       </div>
 
-      <!-- コース完了画面 -->
+      <!-- 3. コース完了画面 -->
       <div class="result-screen" id="result-screen" style="display: none;">
         <img src="images/banner.jpg" alt="バンナー" class="result-banner-img celebrate-anim">
         <h2 style="font-size: 1.8rem; font-weight: 900; color: var(--primary);" id="result-title">🎉 コースクリア！おめでとう！</h2>
         <p style="font-size: 1.1rem; font-weight: 700;" id="result-desc">君は一次関数のマスターだ！</p>
         
-        <button class="btn-submit" onclick="openGachaModal()" style="margin-top: 10px; width: 90%; background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);">
+        <button class="btn-submit" id="result-screen-gacha-btn" style="margin-top: 10px; width: 90%; background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);">
           <span>🎁 ガチャを引いてカードGET！</span>
         </button>
 
-        <button class="btn-submit" onclick="showStageSelect()" style="margin-top: 10px; width: 90%;">
+        <button class="btn-submit" onclick="forceGoHome()" style="margin-top: 10px; width: 90%;">
           <span>🗺️ コース選択へもどる</span>
         </button>
       </div>
@@ -156,6 +163,7 @@
     </main>
   </div>
 
+  <!-- ガチャモーダル -->
   <div class="modal-overlay" id="gacha-modal">
     <div class="modal-card" style="text-align: center;">
       <div class="modal-header">
@@ -176,6 +184,7 @@
     </div>
   </div>
 
+  <!-- 図鑑モーダル -->
   <div class="modal-overlay" id="collection-modal">
     <div class="modal-card" style="max-width: 680px; max-height: 85vh; overflow-y: auto;">
       <div class="modal-header">
@@ -201,6 +210,7 @@
     </div>
   </div>
 
+  <!-- ヒントモーダル -->
   <div class="modal-overlay" id="hint-modal">
     <div class="modal-card">
       <div class="modal-header">
@@ -215,6 +225,7 @@
     </div>
   </div>
 
+  <!-- 正解・不正解モーダル -->
   <div class="modal-overlay" id="result-modal">
     <div class="modal-card">
       <div class="modal-header">
@@ -228,6 +239,7 @@
     </div>
   </div>
 
+  <!-- 選択肢モーダル -->
   <div class="modal-overlay" id="choice-modal">
     <div class="modal-card">
       <div class="modal-header">
@@ -239,6 +251,7 @@
     </div>
   </div>
 
+  <!-- キーパッドシート -->
   <div class="keypad-sheet" id="keypad-sheet">
     <div class="keypad-header">
       <span class="keypad-title">数字を入力しよう</span>
@@ -262,9 +275,10 @@
     </div>
   </div>
 
-  <script src="questions.js?v=20"></script>
-  <script src="cards.js?v=20"></script>
-  <script src="sound.js?v=20"></script>
-  <script src="app.js?v=20"></script>
+  <!-- 強制キャッシュ破棄用スクリプト読み込み -->
+  <script src="questions.js?v=20260807_9999"></script>
+  <script src="cards.js?v=20260807_9999"></script>
+  <script src="sound.js?v=20260807_9999"></script>
+  <script src="app.js?v=20260807_9999"></script>
 </body>
 </html>

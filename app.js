@@ -1,4 +1,4 @@
-// メインアプリケーションロジック (コースクリア画面ポップアップ完全保証版)
+// メインアプリケーションロジック (イベント直接バインド＆絶対安全ホーム復帰版)
 let currentStageQuestions = [];
 let currentQIdx = 0;
 let userAnswers = {};
@@ -23,13 +23,59 @@ function saveStats() {
   safeSetItem('polandball_solved_count', solvedCount.toString());
 }
 
+function forceGoHome() {
+  try { sounds.playTap(); } catch(e){}
+  closeAllModals();
+  loadStatsFromStorage();
+  updateHeaderStats();
+
+  const playScreen = document.getElementById('quiz-play-screen');
+  if (playScreen) playScreen.style.display = 'none';
+
+  const resultScreen = document.getElementById('result-screen');
+  if (resultScreen) resultScreen.style.display = 'none';
+
+  const selectScreen = document.getElementById('stage-select-screen');
+  if (selectScreen) selectScreen.style.display = 'flex';
+}
+
 function initApp() {
   try {
     loadStatsFromStorage();
     renderStageGrid();
     updateHeaderStats();
-    showStageSelect();
+    forceGoHome();
     setupModalOverlayClick();
+    bindDirectEvents();
+  } catch (e) {}
+}
+
+function bindDirectEvents() {
+  try {
+    const submitBtn = document.getElementById('main-submit-btn');
+    if (submitBtn) {
+      submitBtn.onclick = handleSubmitClick;
+    }
+    const hintBtn = document.getElementById('main-hint-btn');
+    if (hintBtn) {
+      hintBtn.onclick = handleHintClick;
+    }
+    const brandTrigger = document.getElementById('brand-home-trigger');
+    if (brandTrigger) {
+      brandTrigger.onclick = forceGoHome;
+    }
+    const collectionBtn = document.getElementById('btn-open-collection');
+    if (collectionBtn) {
+      collectionBtn.onclick = openCardCollectionModal;
+    }
+    const gachaBanner = document.getElementById('btn-open-gacha-banner');
+    if (gachaBanner) {
+      gachaBanner.onclick = openGachaModal;
+    }
+    const gachaResultBtn = document.getElementById('result-screen-gacha-btn');
+    if (gachaResultBtn) {
+      gachaResultBtn.onclick = openGachaModal;
+    }
   } catch (e) {}
 }
 
@@ -100,17 +146,7 @@ function renderStageGrid() {
 }
 
 function showStageSelect() {
-  try { sounds.playTap(); } catch(e){}
-  closeAllModals();
-  loadStatsFromStorage();
-  updateHeaderStats();
-
-  const selectScreen = document.getElementById('stage-select-screen');
-  if (selectScreen) selectScreen.style.display = 'flex';
-  const playScreen = document.getElementById('quiz-play-screen');
-  if (playScreen) playScreen.style.display = 'none';
-  const resultScreen = document.getElementById('result-screen');
-  if (resultScreen) resultScreen.style.display = 'none';
+  forceGoHome();
 }
 
 function startStage(stageId) {
@@ -170,6 +206,7 @@ function loadQuestion(index) {
   if (eqArea) eqArea.innerHTML = q.equationDisplay || '';
 
   renderGraph(q.graphData);
+  bindDirectEvents();
 }
 
 function renderGraph(graphData) {
@@ -334,7 +371,6 @@ function handleHintClick() {
   openModal('hint-modal');
 }
 
-// マイナス記号のゆらぎ（全角、半角、ダッシュ）を強力に吸収
 function normalizeAnswer(val) {
   if (val === undefined || val === null) return "";
   return String(val)
@@ -345,7 +381,6 @@ function normalizeAnswer(val) {
     .replace(/[ー−—–]/g, '-');
 }
 
-// 解答ボタンタップ時の絶対確実な判定＆コース完了処理
 function handleSubmitClick() {
   try {
     const q = currentStageQuestions[currentQIdx];
@@ -382,16 +417,14 @@ function handleSubmitClick() {
       starCount += 10;
       solvedCount++;
 
-      // ★コース最後の問題を正解した時★
       if (isLastQuestionInStage) {
-        gachaTickets += 1; // チケット1枚確実に加算！
+        gachaTickets += 1;
         saveStats();
         updateHeaderStats();
-        showResultScreen(); // コース完了画面を絶対表示！
+        showResultScreen();
         return;
       }
 
-      // 通常の問題の正解時
       try { sounds.playSuccess(); } catch(e){}
       saveStats();
       updateHeaderStats();
@@ -448,7 +481,6 @@ function nextQuestion() {
   }
 }
 
-// ★コース完了画面表示関数 (100%失敗なし保証)★
 function showResultScreen() {
   try { sounds.playFanfare(); } catch(e){}
 
@@ -456,7 +488,6 @@ function showResultScreen() {
   loadStatsFromStorage();
   updateHeaderStats();
 
-  // 画面要素を切り替え
   const playScreen = document.getElementById('quiz-play-screen');
   if (playScreen) playScreen.style.display = 'none';
 
@@ -480,6 +511,7 @@ function showResultScreen() {
       </div>
     `;
   }
+  bindDirectEvents();
 }
 
 function openGachaModal() {
