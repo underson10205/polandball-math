@@ -1,4 +1,4 @@
-// メインアプリケーションロジック (図鑑モーダル絶対起動保証版)
+// メインアプリケーションロジック (5正解＝1チケット確実獲得ポイント制)
 let currentStageQuestions = [];
 let currentQIdx = 0;
 let userAnswers = {};
@@ -9,6 +9,7 @@ let currentStageId = 1;
 
 let solvedCount = 0;
 let gachaTickets = 3;
+let ticketPoints = 0; // ガチャチケット用ポイント (0〜4、5溜まるとチケット1枚)
 
 const savedTicketsStr = safeGetItem('polandball_gacha_tickets');
 if (savedTicketsStr !== null) {
@@ -24,9 +25,16 @@ if (savedSolvedStr !== null) {
   if (isNaN(solvedCount)) solvedCount = 0;
 }
 
+const savedPointsStr = safeGetItem('polandball_ticket_points');
+if (savedPointsStr !== null) {
+  ticketPoints = parseInt(savedPointsStr, 10);
+  if (isNaN(ticketPoints)) ticketPoints = 0;
+}
+
 function saveStats() {
   safeSetItem('polandball_gacha_tickets', gachaTickets.toString());
   safeSetItem('polandball_solved_count', solvedCount.toString());
+  safeSetItem('polandball_ticket_points', ticketPoints.toString());
 }
 
 function initApp() {
@@ -67,14 +75,10 @@ function updateHeaderStats() {
     const starEl = document.getElementById('star-count');
     if (starEl) starEl.innerText = starCount;
 
-    const remainder = 5 - (solvedCount % 5);
     const bannerSub = document.querySelector('.gacha-ticket-banner div div:last-child');
     if (bannerSub) {
-      if (remainder === 5) {
-        bannerSub.innerText = `正解数: ${solvedCount}問！ あと5問でチケットGET！`;
-      } else {
-        bannerSub.innerText = `正解数: ${solvedCount}問！ あと ${remainder} 問正解でチケットGET！`;
-      }
+      const remaining = 5 - ticketPoints;
+      bannerSub.innerText = `正解ポイント: ${ticketPoints}/5 ⭐ (あと ${remaining} 問でチケット1枚GET！)`;
     }
   } catch (e) {}
 }
@@ -343,6 +347,7 @@ function normalizeAnswer(val) {
     .replace(/ー/g, '-');
 }
 
+// ★正解ポイント蓄積制 (5ptで1チケット必ず付与)★
 function handleSubmitClick() {
   try {
     const q = currentStageQuestions[currentQIdx];
@@ -379,21 +384,26 @@ function handleSubmitClick() {
       try { sounds.playSuccess(); } catch(e){}
       starCount += 10;
       solvedCount++;
-      
+      ticketPoints++; // 1正解につき1ポイント！
+
       let ticketEarnedNotice = "";
-      if (solvedCount % 5 === 0) {
+      // 5ポイント貯まったら必ずガチャチケット1枚獲得！
+      if (ticketPoints >= 5) {
         gachaTickets++;
+        ticketPoints -= 5;
         try { sounds.playFanfare(); } catch(e){}
         ticketEarnedNotice = `
-          <div style="background:linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color:white; border:3px solid #FEF3C7; padding:12px; border-radius:16px; font-weight:900; margin-top:12px; box-shadow:0 6px 16px rgba(245,158,11,0.4); animation:celebrate 0.5s ease;">
-            🎉 5問正解達成！ ガチャチケット1枚GET！（所持: ${gachaTickets}枚）
+          <div style="background:linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color:white; border:3px solid #FEF3C7; padding:14px; border-radius:16px; font-weight:900; margin-top:12px; box-shadow:0 6px 16px rgba(245,158,11,0.4); animation:celebrate 0.5s ease; text-align:center;">
+            🎉 5問正解達成！ ガチャチケット1枚GET！！<br>
+            <span style="font-size:1.1rem; color:#FEF3C7;">🎟️ 所持チケット: ${gachaTickets}枚</span>
           </div>
         `;
       } else {
-        const remaining = 5 - (solvedCount % 5);
+        const remaining = 5 - ticketPoints;
         ticketEarnedNotice = `
-          <div style="background:#F1F5F9; color:#475569; padding:8px; border-radius:12px; font-weight:800; font-size:0.85rem; margin-top:10px;">
-            🎟️ あと ${remaining} 問正解でガチャチケットGET！
+          <div style="background:#F1F5F9; color:#475569; padding:10px; border-radius:14px; font-weight:800; font-size:0.9rem; margin-top:10px; text-align:center;">
+            🎫 チケットポイント: <b>${ticketPoints} / 5</b> ⭐<br>
+            <span style="color:#D97706;">(あと <b>${remaining}</b> 問正解でチケットGET！)</span>
           </div>
         `;
       }
@@ -518,7 +528,6 @@ function doDrawGacha() {
 
 let currentCollectionFilter = 'ALL';
 
-// ★図鑑モーダルの絶対起動関数★
 function openCardCollectionModal() {
   try { sounds.playTap(); } catch(e){}
   try {
