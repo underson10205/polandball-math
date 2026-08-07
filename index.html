@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>ポーランドボールと学ぼう！中2一次関数（レベル1）</title>
+  <title>ポーランドボールと学ぼう！中2一次関数（全46問）</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,15 +12,16 @@
     <!-- ヘッダー -->
     <header class="app-header">
       <div class="header-brand">
-        <img src="images/polandball.jpg" alt="ポーランドボール" class="header-logo">
+        <img src="images/polandball.jpg" alt="ポーランドボール" class="header-logo" onclick="showStageSelect()">
         <div class="header-title">
           <h1>一次関数マスター！</h1>
-          <p>レベル1：基本のきほん</p>
+          <p id="sub-title">全46問スペシャル版</p>
         </div>
       </div>
       <div class="header-stats">
+        <button class="btn-stage-select" onclick="showStageSelect()">コース選択</button>
         <div class="stat-badge">
-          <span>⭐ スター:</span>
+          <span>⭐</span>
           <span id="star-count">0</span>
         </div>
       </div>
@@ -29,55 +30,70 @@
     <!-- メインコンテンツ -->
     <main class="main-content">
 
-      <!-- 進捗メーター -->
-      <div class="progress-section">
-        <div class="progress-bar-bg">
-          <div class="progress-bar-fill" id="progress-fill"></div>
-        </div>
-        <div class="progress-text" id="progress-text">第 1 / 6 問</div>
-      </div>
-
-      <!-- ポーランドボールのキャラクターメッセージ -->
-      <div class="character-banner" id="char-banner" style="background: linear-gradient(135deg, #FF4B4B 0%, #FF8585 100%);">
-        <img src="images/polandball.jpg" alt="キャラ" class="character-avatar" id="char-avatar">
-        <div class="speech-bubble" id="char-speech">
-          Kurwa! 一次関数のきほんの形を覚えるよ！
-        </div>
-      </div>
-
-      <!-- 問題カードエリア -->
-      <div class="question-card" id="question-card">
-        <div class="question-header">
-          <h2 class="question-title" id="q-title">第1問：一次関数の【名前】を覚えよう！</h2>
-          <p class="question-desc" id="q-desc">説明文がここに入ります</p>
-        </div>
-
-        <!-- 式・穴埋めカード -->
-        <div id="q-equation-area">
+      <!-- コース・ステージ選択画面 -->
+      <div class="stage-select-screen" id="stage-select-screen">
+        <h2 style="font-size: 1.4rem; font-weight: 900; color: var(--primary); text-align: center; margin-bottom: 12px;">
+          好きなコースをえらんでね！（全46問）
+        </h2>
+        <div class="stage-grid" id="stage-grid">
           <!-- JSで動的生成 -->
         </div>
+      </div>
 
-        <!-- 視覚化グラフエリア -->
-        <div class="graph-container">
-          <canvas id="graphCanvas"></canvas>
+      <!-- クイズプレイ画面 (初期非表示) -->
+      <div id="quiz-play-screen" style="display: none; flex-direction: column; gap: 20px;">
+
+        <!-- 進捗バー -->
+        <div class="progress-section">
+          <button onclick="showStageSelect()" style="background:none; border:none; font-size:1.2rem; cursor:pointer;">🏠</button>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="progress-fill"></div>
+          </div>
+          <div class="progress-text" id="progress-text">第 1 / 46 問</div>
         </div>
 
-        <!-- アクションボタンエリア (①やってみる → ②わからない → ③解答) -->
-        <div class="action-bar">
-          <button class="btn-hint" onclick="handleHintClick()">
-            <span>💡 わからない</span>
-          </button>
-          <button class="btn-submit" onclick="handleSubmitClick()">
-            <span>✨ 解答する！</span>
-          </button>
+        <!-- ポーランドボールキャラクターダイアログ -->
+        <div class="character-banner" id="char-banner" style="background: linear-gradient(135deg, #FF4B4B 0%, #FF8585 100%);">
+          <img src="images/polandball.jpg" alt="キャラ" class="character-avatar" id="char-avatar">
+          <div class="speech-bubble" id="char-speech">
+            Kurwa! 一次関数のきほんの形を覚えるよ！
+          </div>
+        </div>
+
+        <!-- 問題カードエリア -->
+        <div class="question-card" id="question-card">
+          <div class="question-header">
+            <h2 class="question-title" id="q-title">第1問：一次関数の【名前】を覚えよう！</h2>
+            <p class="question-desc" id="q-desc">説明文がここに入ります</p>
+          </div>
+
+          <!-- 式・穴埋めカード -->
+          <div id="q-equation-area">
+            <!-- JSで動的生成 -->
+          </div>
+
+          <!-- 視覚化グラフエリア -->
+          <div class="graph-container">
+            <canvas id="graphCanvas"></canvas>
+          </div>
+
+          <!-- アクションボタンエリア (①やってみる → ②わからない → ③解答) -->
+          <div class="action-bar">
+            <button class="btn-hint" onclick="handleHintClick()">
+              <span>💡 わからない</span>
+            </button>
+            <button class="btn-submit" onclick="handleSubmitClick()">
+              <span>✨ 解答する！</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      <!-- 全問クリア結果画面 (初期非表示) -->
+      <!-- 全問/ステージクリア結果画面 (初期非表示) -->
       <div class="result-screen" id="result-screen" style="display: none;">
         <img src="images/banner.jpg" alt="バンナー" class="result-banner-img celebrate-anim">
-        <h2 style="font-size: 2rem; font-weight: 900; color: var(--primary);">🎉 全問クリア！おめでとう！</h2>
-        <p style="font-size: 1.2rem; font-weight: 700;">君はもう一次関数のレベル1マスターだ！<br>ポーランドボールたちも大よろこび！</p>
+        <h2 style="font-size: 1.8rem; font-weight: 900; color: var(--primary);" id="result-title">🎉 コースクリア！おめでとう！</h2>
+        <p style="font-size: 1.1rem; font-weight: 700;" id="result-desc">君は一次関数のマスターだ！</p>
         
         <div style="width: 100%;">
           <h3 style="margin-bottom: 12px; font-weight: 900;">🏆 ゲットした国旗バッジコレクション</h3>
@@ -86,8 +102,8 @@
           </div>
         </div>
 
-        <button class="btn-submit" onclick="restartQuiz()" style="margin-top: 20px; width: 80%;">
-          <span>🔄 もう一度挑戦する！</span>
+        <button class="btn-submit" onclick="showStageSelect()" style="margin-top: 20px; width: 80%;">
+          <span>🗺️ コース選択へもどる</span>
         </button>
       </div>
 

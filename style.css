@@ -1,5 +1,5 @@
 /* ----------------------------------------------------
-   ポーランドボールと学ぼう！一次関数アプリ CSS
+   ポーランドボールと学ぼう！一次関数アプリ CSS (全46問版)
    ---------------------------------------------------- */
 @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800;900&display=swap');
 
@@ -69,6 +69,7 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
+  cursor: pointer;
 }
 
 .header-logo {
@@ -95,7 +96,20 @@ body {
 
 .header-stats {
   display: flex;
-  gap: 12px;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-stage-select {
+  background: rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  color: white;
+  font-family: var(--font-family);
+  font-weight: 900;
+  font-size: 0.9rem;
+  padding: 6px 14px;
+  border-radius: 50px;
+  cursor: pointer;
 }
 
 .stat-badge {
@@ -118,6 +132,73 @@ body {
   display: flex;
   flex-direction: column;
   gap: 20px;
+}
+
+/* ステージ選択グリッド */
+.stage-select-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.stage-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.stage-card {
+  background: white;
+  border: 3px solid #E2E8F0;
+  border-radius: var(--radius-lg);
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.stage-card:hover, .stage-card:active {
+  transform: translateY(-3px) scale(1.01);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+  border-color: var(--secondary);
+}
+
+.stage-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.stage-icon {
+  font-size: 2.2rem;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #F1F5F9;
+}
+
+.stage-name {
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: var(--text-main);
+}
+
+.stage-range {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.stage-arrow {
+  font-size: 1.5rem;
+  color: var(--text-muted);
+  font-weight: 900;
 }
 
 /* 進捗バー */
@@ -616,7 +697,7 @@ canvas#graphCanvas {
   align-items: center;
   gap: 24px;
   text-align: center;
-  padding: 30px 20px;
+  padding: 20px 10px;
 }
 
 .result-banner-img {
@@ -629,7 +710,7 @@ canvas#graphCanvas {
 .badge-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
+  gap: 12px;
   width: 100%;
 }
 
@@ -637,21 +718,21 @@ canvas#graphCanvas {
   background: white;
   border: 2px solid #E2E8F0;
   border-radius: 16px;
-  padding: 16px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.05);
 }
 
 .badge-flag {
-  font-size: 2.5rem;
+  font-size: 2.2rem;
 }
 
 .badge-name {
   font-weight: 900;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
 }
 
 /* アニメーション定義 */

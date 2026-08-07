@@ -1,26 +1,82 @@
-// メインアプリケーションロジック
+// メインアプリケーションロジック (全46問・ステージ機能付き)
+let currentStageQuestions = [];
 let currentQIdx = 0;
 let userAnswers = {};
 let activeBlankId = null;
 let starCount = 0;
 let keypadValue = "";
+let currentStageId = 1;
 
 // ページロード時の初期化
 window.addEventListener('DOMContentLoaded', () => {
-  loadQuestion(currentQIdx);
+  renderStageGrid();
+  showStageSelect();
 });
+
+// ステージ選択画面の生成
+function renderStageGrid() {
+  const container = document.getElementById('stage-grid');
+  if (!container) return;
+  container.innerHTML = '';
+
+  STAGES.forEach(stage => {
+    const card = document.createElement('div');
+    card.className = 'stage-card';
+    card.onclick = () => startStage(stage.id);
+    card.innerHTML = `
+      <div class="stage-info">
+        <div class="stage-icon">${stage.icon}</div>
+        <div>
+          <div class="stage-name" style="color: ${stage.color};">${stage.name}</div>
+          <div class="stage-range">${stage.range}</div>
+        </div>
+      </div>
+      <div class="stage-arrow">➔</div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+// コース選択画面を表示
+function showStageSelect() {
+  sounds.playTap();
+  document.getElementById('stage-select-screen').style.display = 'flex';
+  document.getElementById('quiz-play-screen').style.display = 'none';
+  document.getElementById('result-screen').style.display = 'none';
+}
+
+// 特定ステージのクイズを開始
+function startStage(stageId) {
+  sounds.playTap();
+  currentStageId = stageId;
+
+  if (stageId === 5) {
+    // ステージ5（ファイナル）：全46問からランダム/全問題
+    currentStageQuestions = QUESTIONS;
+  } else {
+    // ステージ1〜4
+    currentStageQuestions = QUESTIONS.filter(q => q.stage === stageId);
+  }
+
+  currentQIdx = 0;
+  document.getElementById('stage-select-screen').style.display = 'none';
+  document.getElementById('result-screen').style.display = 'none';
+  document.getElementById('quiz-play-screen').style.display = 'flex';
+
+  loadQuestion(currentQIdx);
+}
 
 // 問題のロード
 function loadQuestion(index) {
-  const q = QUESTIONS[index];
+  const q = currentStageQuestions[index];
   userAnswers = {};
   activeBlankId = null;
   keypadValue = "";
 
   // 進捗更新
-  const progressPercent = ((index + 1) / QUESTIONS.length) * 100;
+  const progressPercent = ((index + 1) / currentStageQuestions.length) * 100;
   document.getElementById('progress-fill').style.width = `${progressPercent}%`;
-  document.getElementById('progress-text').innerText = `第 ${index + 1} / ${QUESTIONS.length} 問`;
+  document.getElementById('progress-text').innerText = `第 ${index + 1} / ${currentStageQuestions.length} 問`;
 
   // キャラクター＆セリフ
   const banner = document.getElementById('char-banner');
@@ -45,7 +101,6 @@ function renderGraph(graphData) {
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   
-  // キャンバスのサイズ調整
   const rect = canvas.getBoundingClientRect();
   canvas.width = rect.width * window.devicePixelRatio;
   canvas.height = rect.height * window.devicePixelRatio;
@@ -61,44 +116,29 @@ function renderGraph(graphData) {
   // 座標軸 (原点: 中央)
   const originX = width / 2;
   const originY = height / 2;
-  const scale = 18; // 1単位のピクセル数
+  const scale = 14; // ピクセル倍率
 
   // グリッド線
   ctx.strokeStyle = '#E2E8F0';
   ctx.lineWidth = 1;
   for (let x = originX % scale; x < width; x += scale) {
-    ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, height);
-    ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, height); ctx.stroke();
   }
   for (let y = originY % scale; y < height; y += scale) {
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.lineTo(width, y);
-    ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke();
   }
 
   // x軸・y軸
   ctx.strokeStyle = '#64748B';
   ctx.lineWidth = 2;
-  // x軸
-  ctx.beginPath();
-  ctx.moveTo(0, originY);
-  ctx.lineTo(width, originY);
-  ctx.stroke();
-  // y軸
-  ctx.beginPath();
-  ctx.moveTo(originX, 0);
-  ctx.lineTo(originX, height);
-  ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0, originY); ctx.lineTo(width, originY); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(originX, 0); ctx.lineTo(originX, height); ctx.stroke();
 
-  // 軸のラベル
   ctx.fillStyle = '#475569';
-  ctx.font = 'bold 12px "M PLUS Rounded 1c"';
-  ctx.fillText('x', width - 15, originY - 6);
-  ctx.fillText('y', originX + 6, 15);
-  ctx.fillText('O', originX - 14, originY + 14);
+  ctx.font = 'bold 11px "M PLUS Rounded 1c"';
+  ctx.fillText('x', width - 12, originY - 6);
+  ctx.fillText('y', originX + 6, 12);
+  ctx.fillText('O', originX - 12, originY + 12);
 
   // 一次関数の直線描画 y = ax + b
   if (graphData && typeof graphData.a === 'number') {
@@ -109,48 +149,34 @@ function renderGraph(graphData) {
     ctx.lineWidth = 3.5;
     ctx.beginPath();
 
-    // キャンバス左右端でのy座標を算出
     const xMin = -originX / scale;
     const xMax = (width - originX) / scale;
     const yMin = a * xMin + b;
     const yMax = a * xMax + b;
 
-    const screenX1 = 0;
-    const screenY1 = originY - yMin * scale;
-    const screenX2 = width;
-    const screenY2 = originY - yMax * scale;
-
-    ctx.moveTo(screenX1, screenY1);
-    ctx.lineTo(screenX2, screenY2);
+    ctx.moveTo(0, originY - yMin * scale);
+    ctx.lineTo(width, originY - yMax * scale);
     ctx.stroke();
 
-    // 切片 (0, b) のポイント強調
-    const interceptScreenX = originX;
+    // 切片 (0, b) の強点
     const interceptScreenY = originY - b * scale;
     if (interceptScreenY >= 0 && interceptScreenY <= height) {
       ctx.fillStyle = '#8B5CF6';
       ctx.beginPath();
-      ctx.arc(interceptScreenX, interceptScreenY, 6, 0, Math.PI * 2);
+      ctx.arc(originX, interceptScreenY, 5, 0, Math.PI * 2);
       ctx.fill();
-      ctx.strokeStyle = '#FFFFFF';
-      ctx.lineWidth = 2;
-      ctx.stroke();
     }
 
-    // 指定された点 (pointX, pointY) の強調描画
+    // 指定点
     if (graphData.type === 'point' && typeof graphData.pointX === 'number') {
       const ptScreenX = originX + graphData.pointX * scale;
       const ptScreenY = originY - graphData.pointY * scale;
-      ctx.fillStyle = '#3B82F6';
-      ctx.beginPath();
-      ctx.arc(ptScreenX, ptScreenY, 7, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = '#FFFFFF';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-      ctx.fillStyle = '#1E3A8A';
-      ctx.font = 'bold 12px "M PLUS Rounded 1c"';
-      ctx.fillText(`(${graphData.pointX}, ${graphData.pointY})`, ptScreenX + 8, ptScreenY - 6);
+      if (ptScreenX >= 0 && ptScreenX <= width && ptScreenY >= 0 && ptScreenY <= height) {
+        ctx.fillStyle = '#3B82F6';
+        ctx.beginPath();
+        ctx.arc(ptScreenX, ptScreenY, 6, 0, Math.PI * 2);
+        ctx.fill();
+      }
     }
   }
 }
@@ -159,7 +185,6 @@ function renderGraph(graphData) {
 // iPadテンキー＆選択肢モーダル操作
 // --------------------------------------------------
 
-// テンキーオープン
 function openKeypadModal(blankId) {
   sounds.playTap();
   activeBlankId = blankId;
@@ -213,11 +238,11 @@ function confirmKeypad() {
   closeKeypad();
 }
 
-// 選択肢モーダルオープン (第1問などの文字列選択)
+// 選択肢モーダル
 function openChoiceModal(blankId) {
   sounds.playTap();
   activeBlankId = blankId;
-  const q = QUESTIONS[currentQIdx];
+  const q = currentStageQuestions[currentQIdx];
   const blankConfig = q.blanks[blankId];
 
   const optionsContainer = document.getElementById('choice-options');
@@ -253,7 +278,7 @@ function selectChoice(value) {
 // --------------------------------------------------
 function handleHintClick() {
   sounds.playHint();
-  const q = QUESTIONS[currentQIdx];
+  const q = currentStageQuestions[currentQIdx];
   document.getElementById('hint-modal-title').innerText = `${q.character}からのヒント`;
   document.getElementById('hint-modal-body').innerHTML = q.hint1;
   openModal('hint-modal');
@@ -263,7 +288,7 @@ function handleHintClick() {
 // ③ 「解答する！」ボタン（正誤判定）
 // --------------------------------------------------
 function handleSubmitClick() {
-  const q = QUESTIONS[currentQIdx];
+  const q = currentStageQuestions[currentQIdx];
   const blankKeys = Object.keys(q.blanks);
 
   // 空欄チェック
@@ -301,9 +326,8 @@ function handleSubmitClick() {
       ${q.explanation}
     `;
 
-    // 最後の問題かどうか
-    if (currentQIdx === QUESTIONS.length - 1) {
-      document.getElementById('result-modal-next-btn').innerText = "🏆 最終結果をみる！";
+    if (currentQIdx === currentStageQuestions.length - 1) {
+      document.getElementById('result-modal-next-btn').innerText = "🏆 コースクリア画面へ！";
     } else {
       document.getElementById('result-modal-next-btn').innerText = "つぎの問題へ！ ➔";
     }
@@ -311,7 +335,7 @@ function handleSubmitClick() {
     openModal('result-modal');
 
   } else {
-    // 不正解（失敗感を与えない丁寧な案内）
+    // 不正解
     sounds.playRetry();
     document.getElementById('result-modal-icon').innerText = "🤔";
     document.getElementById('result-modal-title').innerText = "おしい！もう一息！";
@@ -322,7 +346,6 @@ function handleSubmitClick() {
       </div>
     `;
     document.getElementById('result-modal-next-btn').innerText = "もう一度やる！";
-    // ボタンの動作を「モーダルを閉じて解き直し」に変更
     document.getElementById('result-modal-next-btn').onclick = () => closeModal('result-modal');
     openModal('result-modal');
   }
@@ -331,14 +354,12 @@ function handleSubmitClick() {
 // 次の問題へ
 function nextQuestion() {
   closeModal('result-modal');
-  // 解答確認ボタンのイベントを元に戻す
   document.getElementById('result-modal-next-btn').onclick = nextQuestion;
 
-  if (currentQIdx < QUESTIONS.length - 1) {
+  if (currentQIdx < currentStageQuestions.length - 1) {
     currentQIdx++;
     loadQuestion(currentQIdx);
   } else {
-    // 全問クリア画面へ！
     showResultScreen();
   }
 }
@@ -346,14 +367,15 @@ function nextQuestion() {
 // 結果画面の表示
 function showResultScreen() {
   sounds.playFanfare();
-  document.getElementById('question-card').style.display = 'none';
-  document.querySelector('.progress-section').style.display = 'none';
-  document.getElementById('char-banner').style.display = 'none';
+  document.getElementById('quiz-play-screen').style.display = 'none';
 
   const resultScreen = document.getElementById('result-screen');
   resultScreen.style.display = 'flex';
 
-  // バッジ一覧の生成
+  document.getElementById('result-title').innerText = "🎉 コースクリア！おめでとう！";
+  document.getElementById('result-desc').innerText = `全 ${currentStageQuestions.length} 問クリア！君は一次関数のマスターだ！`;
+
+  // バッジ一覧
   const badgeGrid = document.getElementById('badge-grid');
   badgeGrid.innerHTML = '';
   BADGES.forEach(badge => {
@@ -367,25 +389,6 @@ function showResultScreen() {
   });
 }
 
-// クイズ再スタート
-function restartQuiz() {
-  sounds.playTap();
-  currentQIdx = 0;
-  starCount = 0;
-  document.getElementById('star-count').innerText = "0";
-  document.getElementById('result-screen').style.display = 'none';
-  document.getElementById('question-card').style.display = 'flex';
-  document.querySelector('.progress-section').style.display = 'flex';
-  document.getElementById('char-banner').style.display = 'flex';
-  loadQuestion(currentQIdx);
-}
-
 // モーダルユーティリティ
-function openModal(id) {
-  document.getElementById(id).classList.add('active');
-}
-
-function closeModal(id) {
-  sounds.playTap();
-  document.getElementById(id).classList.remove('active');
-}
+function openModal(id) { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { sounds.playTap(); document.getElementById(id).classList.remove('active'); }
