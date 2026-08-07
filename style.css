@@ -1,5 +1,5 @@
 /* ----------------------------------------------------
-   ポーランドボールと学ぼう！一次関数アプリ CSS (全200種カード機能つき)
+   ポーランドボールと学ぼう！一次関数アプリ CSS (iPad表示レスポンシブ最適化版)
    ---------------------------------------------------- */
 @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800;900&display=swap');
 
@@ -20,36 +20,33 @@
   --shadow-pop: 0 8px 0px rgba(0, 0, 0, 0.15);
 }
 
-* {
-  box-sizing: border-box;
+html, body {
+  width: 100%;
+  min-height: 100%;
   margin: 0;
   padding: 0;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
-}
-
-body {
-  font-family: var(--font-family);
   background: #EEF2F6;
+  font-family: var(--font-family);
   color: var(--text-main);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-bottom: 40px;
+  -webkit-text-size-adjust: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
-/* アプリコンテナ */
+/* アプリコンテナ（iPadなどの高さ画面に対応） */
 #app-container {
   width: 100%;
   max-width: 900px;
   min-height: 100vh;
+  margin: 0 auto;
   background: #FFFFFF;
   display: flex;
   flex-direction: column;
   box-shadow: 0 0 40px rgba(0,0,0,0.1);
   position: relative;
-  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 80px; /* iPad下部スクロール余白 */
 }
 
 /* ヘッダー */
@@ -63,6 +60,9 @@ body {
   border-bottom-left-radius: 24px;
   border-bottom-right-radius: 24px;
   box-shadow: 0 6px 20px rgba(220, 38, 38, 0.3);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 .header-brand {
@@ -132,19 +132,22 @@ body {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  overflow-y: visible;
 }
 
-/* ステージ選択グリッド */
+/* ステージ選択画面 */
 .stage-select-screen {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  padding-bottom: 40px;
 }
 
 .stage-grid {
   display: flex;
   flex-direction: column;
   gap: 14px;
+  width: 100%;
 }
 
 .stage-card {
@@ -158,6 +161,7 @@ body {
   cursor: pointer;
   box-shadow: 0 6px 16px rgba(0,0,0,0.06);
   transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  min-height: 80px;
 }
 
 .stage-card:hover, .stage-card:active {
@@ -181,6 +185,7 @@ body {
   align-items: center;
   justify-content: center;
   background: #F1F5F9;
+  flex-shrink: 0;
 }
 
 .stage-name {
@@ -527,6 +532,8 @@ canvas#graphCanvas {
   flex-direction: column;
   gap: 16px;
   position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 .modal-overlay.active .modal-card {
@@ -575,6 +582,7 @@ canvas#graphCanvas {
   gap: 8px;
   justify-content: center;
   margin-bottom: 12px;
+  flex-wrap: wrap;
 }
 
 .tab-btn {
@@ -613,10 +621,6 @@ canvas#graphCanvas {
   position: relative;
   text-align: center;
   transition: transform 0.2s ease;
-}
-
-.pb-card-item:hover {
-  transform: scale(1.05);
 }
 
 .pb-card-item.unowned {
