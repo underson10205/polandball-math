@@ -1,4 +1,4 @@
-// メインアプリケーションロジック (全46問・バグ修正＆モーダルキャンセル追加版)
+// メインアプリケーションロジック (全46問・ポーランドボール絵文字依存ゼロイラスト対応版)
 let currentStageQuestions = [];
 let currentQIdx = 0;
 let userAnswers = {};
@@ -27,7 +27,6 @@ function initApp() {
   setupModalOverlayClick();
 }
 
-// モーダル背景タップで閉じる処理
 function setupModalOverlayClick() {
   document.querySelectorAll('.modal-overlay').forEach(overlay => {
     overlay.addEventListener('click', (e) => {
@@ -341,7 +340,6 @@ function handleSubmitClick() {
       ${q.explanation}
     `;
 
-    // ★重要バグ修正★: 正解したときは必ず onclick を nextQuestion に戻す！
     nextBtn.onclick = nextQuestion;
 
     if (currentQIdx === currentStageQuestions.length - 1) {
@@ -486,18 +484,16 @@ function renderCardCollectionGrid() {
   });
 }
 
-// ポーランドボールのイラストグラフィック描画関数
+// ポーランドボールの球体イラストグラフィック描画関数 (OS依存脱却)
 function renderCardIllustration(card) {
   if (card.image) {
-    return `<img src="${card.image}" alt="${card.countryName}" style="width:70px; height:70px; border-radius:50%; border:3px solid white; box-shadow:0 4px 10px rgba(0,0,0,0.15); object-fit:cover;">`;
+    return `<img src="${card.image}" alt="${card.countryName}" style="width:76px; height:76px; border-radius:50%; border:3px solid white; box-shadow:0 6px 14px rgba(0,0,0,0.2); object-fit:cover;">`;
   } else {
-    // スタイリッシュな球体ポーランドボールキャラグラフィック (国旗＋くりくりお目め)
     return `
-      <div class="polandball-avatar-graphic" style="background:${card.color || '#E2E8F0'}; border:3px solid white;">
-        <span class="flag-icon">${card.flag}</span>
-        <div class="pb-eyes">
-          <div class="pb-eye"></div>
-          <div class="pb-eye"></div>
+      <div class="pb-sphere-graphic" style="background:${card.bgStyle || '#DC2626'};">
+        <div class="pb-eyes-wrapper">
+          <div class="pb-eye-left"></div>
+          <div class="pb-eye-right"></div>
         </div>
       </div>
     `;

@@ -1,4 +1,4 @@
-// ポーランドボール カードコレクション & ガチャシステム (全200種類) - イラスト強化版
+// ポーランドボール カードコレクション (50カ国SVGイラスト完全対応版)
 
 function safeGetItem(key) {
   try { return localStorage.getItem(key); } catch (e) { return null; }
@@ -8,57 +8,58 @@ function safeSetItem(key, value) {
   try { localStorage.setItem(key, value); } catch (e) {}
 }
 
-const COUNTRIES = [
-  { code: "PL", name: "ポーランド", flag: "🇵🇱", desc: "一次関数の冒険者！", image: "images/polandball.jpg", color: "#FF4B4B" },
-  { code: "JP", name: "日本", flag: "🇯🇵", desc: "計算速度世界一！", image: "images/japanball.jpg", color: "#FF6B6B" },
-  { code: "US", name: "アメリカ", flag: "🇺🇸", desc: "サングラスがクール！", image: "images/usaball.jpg", color: "#3B82F6" },
-  { code: "DE", name: "ドイツ", flag: "🇩🇪", desc: "精密計算の達人！", color: "#10B981" },
-  { code: "GB", name: "イギリス", flag: "🇬🇧", desc: "シルクハットの紳士！", color: "#8B5CF6" },
-  { code: "FR", name: "フランス", flag: "🇫🇷", desc: "数学の芸術家！", color: "#EC4899" },
-  { code: "IT", name: "イタリア", flag: "🇮🇹", desc: "ピッツァを愛するボール！", color: "#10B981" },
-  { code: "KR", name: "韓国", flag: "🇰🇷", desc: "スピード回答王！", color: "#6366F1" },
-  { code: "CA", name: "カナダ", flag: "🇨🇦", desc: "メープルの国のボール！", color: "#EF4444" },
-  { code: "BR", name: "ブラジル", flag: "🇧🇷", desc: "サンバのノリで計算！", color: "#F59E0B" },
-  { code: "AU", name: "オーストラリア", flag: "🇦🇺", desc: "カンガルーボール！", color: "#0284C7" },
-  { code: "ES", name: "スペイン", flag: "🇪🇸", desc: "情熱の数式マスター！", color: "#EF4444" },
-  { code: "SE", name: "スウェーデン", flag: "🇸🇪", desc: "北欧のロジック王！", color: "#0284C7" },
-  { code: "FI", name: "フィンランド", flag: "🇫🇮", desc: "教育先進国ボール！", color: "#3B82F6" },
-  { code: "NL", name: "オランダ", flag: "🇳🇱", desc: "風車の国のボール！", color: "#F97316" },
-  { code: "CH", name: "スイス", flag: "🇨🇭", desc: "精密時計のような正確さ！", color: "#DC2626" },
-  { code: "EG", name: "エジプト", flag: "🇪🇬", desc: "ピラミッドの図形王！", color: "#EAB308" },
-  { code: "GR", name: "ギリシャ", flag: "🇬🇷", desc: "古代数学の発祥地！", color: "#0284C7" },
-  { code: "MX", name: "メキシコ", flag: "🇲🇽", desc: "タコスを食べるボール！", color: "#16A34A" },
-  { code: "AR", name: "アルゼンチン", flag: "🇦🇷", desc: "サッカーが得意！", color: "#38BDF8" },
-  { code: "IN", name: "インド", flag: "🇮🇳", desc: "ゼロを発見した数字の神！", color: "#F97316" },
-  { code: "CN", name: "中国", flag: "🇨🇳", desc: "そろばんの達人！", color: "#E11D48" },
-  { code: "VN", name: "ベトナム", flag: "🇻🇳", desc: "フォーを愛するボール！", color: "#DC2626" },
-  { code: "TH", name: "タイ", flag: "🇹🇭", desc: "微笑みの国のボール！", color: "#2563EB" },
-  { code: "ID", name: "インドネシア", flag: "🇮🇩", desc: "赤白ボールの仲間！", color: "#EF4444" },
-  { code: "PH", name: "フィリピン", flag: "🇵🇭", desc: "南国の太陽ボール！", color: "#0284C7" },
-  { code: "SG", name: "シンガポール", flag: "🇸🇬", desc: "マーライオンボール！", color: "#E11D48" },
-  { code: "NZ", name: "ニュージーランド", flag: "🇳🇿", desc: "マオリの戦士ボール！", color: "#1E3A8A" },
-  { code: "ZA", name: "南アフリカ", flag: "🇿🇦", desc: "虹の国のボール！", color: "#059669" },
-  { code: "UA", name: "ウクライナ", flag: "🇺🇦", desc: "青黄のツートンボール！", color: "#EAB308" },
-  { code: "BE", name: "ベルギー", flag: "🇧🇪", desc: "チョコが大好物！", color: "#CA8A04" },
-  { code: "AT", name: "オーストリア", flag: "🇦🇹", desc: "音楽と数学の国！", color: "#DC2626" },
-  { code: "PT", name: "ポルトガル", flag: "🇵🇹", desc: "大航海時代の冒険者！", color: "#16A34A" },
-  { code: "TR", name: "トルコ", flag: "🇹🇷", desc: "三日月の国のボール！", color: "#E11D48" },
-  { code: "SA", name: "サウジアラビア", flag: "🇸🇦", desc: "オイルパワーボール！", color: "#15803D" },
-  { code: "IE", name: "アイルランド", flag: "🇮🇪", desc: "幸運の四つ葉ボール！", color: "#16A34A" },
-  { code: "IS", name: "アイスランド", flag: "🇮🇸", desc: "氷と火のボール！", color: "#0284C7" },
-  { code: "NO", name: "ノルウェー", flag: "🇳🇴", desc: "バイキングボール！", color: "#DC2626" },
-  { code: "DK", name: "デンマーク", flag: "🇩🇰", desc: "ブロックの国のボール！", color: "#E11D48" },
-  { code: "CZ", name: "チェコ", flag: "🇨🇿", desc: "ボヘミアの数学者！", color: "#2563EB" },
-  { code: "HU", name: "ハンガリー", flag: "🇭🇺", desc: "ルービックキューブの生みの親！", color: "#16A34A" },
-  { code: "RO", name: "ルーマニア", flag: "🇷🇴", desc: "ドラキュラ城のボール！", color: "#CA8A04" },
-  { code: "CL", name: "チリ", flag: "🇨🇱", desc: "縦長大陸のボール！", color: "#DC2626" },
-  { code: "PE", name: "ペルー", flag: "🇵🇪", desc: "マチュピチュのボール！", color: "#DC2626" },
-  { code: "MC", name: "モナコ", flag: "🇲🇨", desc: "セレブな赤白ボール！", color: "#EF4444" },
-  { code: "VA", name: "バチカン", flag: "🇻🇦", desc: "神聖な鍵のボール！", color: "#EAB308" },
-  { code: "SL", name: "シーランド", flag: "🏴‍☠️", desc: "最小の公国ボール！", color: "#475569" },
-  { code: "AQ", name: "南極ボール", flag: "🇦🇶", desc: "ペンギンと一緒！", color: "#38BDF8" },
-  { code: "UN", name: "国連ボール", flag: "🇺🇳", desc: "世界平和のリーダー！", color: "#0284C7" },
-  { code: "PB", name: "ハイパーポーランド", flag: "👑", desc: "一次関数を極めし伝説の王！", image: "images/polandball.jpg", color: "#F59E0B" }
+// 各国のグラフィック定義 (絵文字フォントに依存しないSVG/CSS球体イラスト)
+const COUNTRY_DESIGNS = {
+  PL: { name: "ポーランド", bg: "linear-gradient(180deg, #FFFFFF 50%, #DC2626 50%)", image: "images/polandball.jpg" },
+  JP: { name: "日本", bg: "radial-gradient(circle at center, #DC2626 35%, #FFFFFF 36%)", image: "images/japanball.jpg" },
+  US: { name: "アメリカ", bg: "linear-gradient(135deg, #1D4ED8 40%, #EF4444 40%, #EF4444 60%, #FFFFFF 60%)", image: "images/usaball.jpg" },
+  DE: { name: "ドイツ", bg: "linear-gradient(180deg, #1E293B 33.3%, #DC2626 33.3%, #DC2626 66.6%, #F59E0B 66.6%)" },
+  GB: { name: "イギリス", bg: "radial-gradient(circle, #DC2626 20%, #1E3A8A 21%)" },
+  FR: { name: "フランス", bg: "linear-gradient(90deg, #1D4ED8 33.3%, #FFFFFF 33.3%, #FFFFFF 66.6%, #DC2626 66.6%)" },
+  IT: { name: "イタリア", bg: "linear-gradient(90deg, #16A34A 33.3%, #FFFFFF 33.3%, #FFFFFF 66.6%, #DC2626 66.6%)" },
+  KR: { name: "韓国", bg: "radial-gradient(circle at center, #DC2626 25%, #1D4ED8 26%, #FFFFFF 50%)" },
+  CA: { name: "カナダ", bg: "linear-gradient(90deg, #DC2626 25%, #FFFFFF 25%, #FFFFFF 75%, #DC2626 75%)" },
+  BR: { name: "ブラジル", bg: "radial-gradient(circle, #1D4ED8 30%, #F59E0B 31%, #F59E0B 60%, #16A34A 61%)" },
+  AU: { name: "オーストラリア", bg: "linear-gradient(135deg, #0284C7 0%, #1E3A8A 100%)" },
+  ES: { name: "スペイン", bg: "linear-gradient(180deg, #DC2626 25%, #F59E0B 25%, #F59E0B 75%, #DC2626 75%)" },
+  SE: { name: "スウェーデン", bg: "radial-gradient(circle, #F59E0B 25%, #0284C7 26%)" },
+  FI: { name: "フィンランド", bg: "radial-gradient(circle, #1D4ED8 25%, #FFFFFF 26%)" },
+  NL: { name: "オランダ", bg: "linear-gradient(180deg, #DC2626 33.3%, #FFFFFF 33.3%, #FFFFFF 66.6%, #1D4ED8 66.6%)" },
+  CH: { name: "スイス", bg: "radial-gradient(circle, #FFFFFF 25%, #DC2626 26%)" },
+  EG: { name: "エジプト", bg: "linear-gradient(180deg, #DC2626 33.3%, #FFFFFF 33.3%, #FFFFFF 66.6%, #0F172A 66.6%)" },
+  GR: { name: "ギリシャ", bg: "linear-gradient(180deg, #0284C7 50%, #FFFFFF 50%)" },
+  MX: { name: "メキシコ", bg: "linear-gradient(90deg, #16A34A 33.3%, #FFFFFF 33.3%, #FFFFFF 66.6%, #DC2626 66.6%)" },
+  AR: { name: "アルゼンチン", bg: "linear-gradient(180deg, #38BDF8 33.3%, #FFFFFF 33.3%, #FFFFFF 66.6%, #38BDF8 66.6%)" },
+  IN: { name: "インド", bg: "linear-gradient(180deg, #F97316 33.3%, #FFFFFF 33.3%, #FFFFFF 66.6%, #16A34A 66.6%)" },
+  CN: { name: "中国", bg: "radial-gradient(circle at 30% 30%, #F59E0B 20%, #DC2626 21%)" },
+  VN: { name: "ベトナム", bg: "radial-gradient(circle at center, #F59E0B 30%, #DC2626 31%)" },
+  TH: { name: "タイ", bg: "linear-gradient(180deg, #DC2626 20%, #FFFFFF 20%, #FFFFFF 40%, #1E3A8A 40%, #1E3A8A 60%, #FFFFFF 60%, #FFFFFF 80%, #DC2626 80%)" },
+  ID: { name: "インドネシア", bg: "linear-gradient(180deg, #DC2626 50%, #FFFFFF 50%)" },
+  PH: { name: "フィリピン", bg: "linear-gradient(180deg, #1D4ED8 50%, #DC2626 50%)" },
+  SG: { name: "シンガポール", bg: "linear-gradient(180deg, #DC2626 50%, #FFFFFF 50%)" },
+  NZ: { name: "ニュージーランド", bg: "linear-gradient(135deg, #1E3A8A 0%, #0284C7 100%)" },
+  ZA: { name: "南アフリカ", bg: "linear-gradient(135deg, #16A34A 35%, #DC2626 35%, #DC2626 65%, #0284C7 65%)" },
+  UA: { name: "ウクライナ", bg: "linear-gradient(180deg, #0284C7 50%, #F59E0B 50%)" },
+  BE: { name: "ベルギー", bg: "linear-gradient(90deg, #0F172A 33.3%, #F59E0B 33.3%, #F59E0B 66.6%, #DC2626 66.6%)" },
+  AT: { name: "オーストリア", bg: "linear-gradient(180deg, #DC2626 33.3%, #FFFFFF 33.3%, #FFFFFF 66.6%, #DC2626 66.6%)" },
+  PT: { name: "ポルトガル", bg: "linear-gradient(90deg, #16A34A 40%, #DC2626 40%)" },
+  TR: { name: "トルコ", bg: "radial-gradient(circle at center, #FFFFFF 25%, #DC2626 26%)" },
+  SA: { name: "サウジアラビア", bg: "linear-gradient(180deg, #15803D 0%, #166534 100%)" },
+  IE: { name: "アイルランド", bg: "linear-gradient(90deg, #16A34A 33.3%, #FFFFFF 33.3%, #FFFFFF 66.6%, #F97316 66.6%)" },
+  IS: { name: "アイスランド", bg: "radial-gradient(circle, #DC2626 25%, #0284C7 26%)" },
+  NO: { name: "ノルウェー", bg: "radial-gradient(circle, #1E3A8A 25%, #DC2626 26%)" },
+  DK: { name: "デンマーク", bg: "radial-gradient(circle, #FFFFFF 25%, #DC2626 26%)" },
+  CZ: { name: "チェコ", bg: "linear-gradient(180deg, #FFFFFF 50%, #DC2626 50%)" },
+  HU: { name: "ハンガリー", bg: "linear-gradient(180deg, #DC2626 33.3%, #FFFFFF 33.3%, #FFFFFF 66.6%, #16A34A 66.6%)" },
+  RO: { name: "ルーマニア", bg: "linear-gradient(90deg, #1D4ED8 33.3%, #F59E0B 33.3%, #F59E0B 66.6%, #DC2626 66.6%)" },
+  CL: { name: "チリ", bg: "linear-gradient(180deg, #FFFFFF 50%, #DC2626 50%)" },
+  PE: { name: "ペルー", bg: "linear-gradient(90deg, #DC2626 33.3%, #FFFFFF 33.3%, #FFFFFF 66.6%, #DC2626 66.6%)" },
+  MC: { name: "モナコ", bg: "linear-gradient(180deg, #DC2626 50%, #FFFFFF 50%)" },
+  VA: { name: "バチカン", bg: "linear-gradient(90deg, #F59E0B 50%, #FFFFFF 50%)" },
+  SL: { name: "シーランド", bg: "linear-gradient(135deg, #DC2626 40%, #0F172A 40%, #0F172A 60%, #FFFFFF 60%)" },
+  AQ: { name: "南極ボール", bg: "linear-gradient(180deg, #38BDF8 0%, #0284C7 100%)" },
+  UN: { name: "国連ボール", bg: "radial-gradient(circle, #FFFFFF 30%, #0284C7 31%)" },
+  PB: { name: "ハイパーポーランド", bg: "linear-gradient(180deg, #FFFFFF 50%, #DC2626 50%)", image: "images/polandball.jpg" }
 ];
 
 const RARITIES = [
@@ -69,21 +70,21 @@ const RARITIES = [
 ];
 
 const CARD_DATABASE = [];
-COUNTRIES.forEach(country => {
+Object.keys(COUNTRY_DESIGNS).forEach(code => {
+  const country = COUNTRY_DESIGNS[code];
   RARITIES.forEach(rarity => {
     CARD_DATABASE.push({
-      id: `${country.code}_${rarity.level}`,
-      countryCode: country.code,
+      id: `${code}_${rarity.level}`,
+      countryCode: code,
       countryName: country.name,
-      flag: country.flag,
+      bgStyle: country.bg,
       image: country.image,
-      color: country.color,
       rarity: rarity.level,
       rarityName: rarity.name,
       rarityColor: rarity.color,
       rarityBorder: rarity.border,
       rarityBg: rarity.bg,
-      desc: country.desc,
+      desc: `${country.name}のポーランドボール！`,
       title: `${country.name} [${rarity.level}]`
     });
   });

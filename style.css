@@ -1,5 +1,5 @@
 /* ----------------------------------------------------
-   ポーランドボールと学ぼう！一次関数アプリ CSS (イラスト＆キャンセル対応)
+   ポーランドボールと学ぼう！一次関数アプリ CSS (50カ国球体ボールSVG対応)
    ---------------------------------------------------- */
 @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800;900&display=swap');
 
@@ -565,41 +565,37 @@ canvas#graphCanvas {
   box-shadow: 0 4px 0 #B91C1C;
 }
 
-/* ポーランドボールアバターグラフィック */
-.polandball-avatar-graphic {
-  width: 60px;
-  height: 60px;
+/* 本格的なポーランドボール球体グラフィック (OS/フォント非依存) */
+.pb-sphere-graphic {
+  width: 76px;
+  height: 76px;
   border-radius: 50%;
+  border: 4px solid #1E293B;
+  box-shadow: inset 0 -8px 12px rgba(0,0,0,0.25), 0 6px 14px rgba(0,0,0,0.18);
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
   overflow: hidden;
 }
 
-.polandball-avatar-graphic .flag-icon {
-  font-size: 2.2rem;
-  z-index: 1;
-}
-
-.polandball-avatar-graphic .pb-eyes {
+.pb-eyes-wrapper {
   position: absolute;
-  top: 14px;
+  top: 22px;
   display: flex;
-  gap: 8px;
-  z-index: 2;
+  gap: 10px;
+  z-index: 5;
 }
 
-.polandball-avatar-graphic .pb-eye {
-  width: 10px;
-  height: 12px;
-  background: white;
+.pb-eye-left, .pb-eye-right {
+  width: 14px;
+  height: 18px;
+  background: #FFFFFF;
   border-radius: 50%;
-  border: 2px solid #1E293B;
+  border: 2.5px solid #1E293B;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
-/* カード図鑑 */
 .rarity-tabs {
   display: flex;
   gap: 8px;
@@ -698,7 +694,6 @@ canvas#graphCanvas {
   border: 4px solid #94A3B8;
 }
 
-/* テンキーパッド */
 .keypad-sheet {
   position: fixed;
   bottom: -100%;

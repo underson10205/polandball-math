@@ -4,12 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>ポーランドボールと学ぼう！中2一次関数（カード200種）</title>
-  <link rel="stylesheet" href="style.css?v=4">
+  <link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
 
   <div id="app-container">
-    <!-- ヘッダー -->
     <header class="app-header">
       <div class="header-brand" onclick="showStageSelect()">
         <img src="images/polandball.jpg" alt="ポーランドボール" class="header-logo">
@@ -27,10 +26,7 @@
       </div>
     </header>
 
-    <!-- メインコンテンツ -->
     <main class="main-content">
-
-      <!-- コース・ステージ選択画面 -->
       <div class="stage-select-screen" id="stage-select-screen" style="display: flex;">
         <div class="gacha-ticket-banner" onclick="openGachaModal()" style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: white; padding: 14px 20px; border-radius: 20px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4);">
           <div style="display: flex; align-items: center; gap: 12px;">
@@ -103,7 +99,6 @@
         </div>
       </div>
 
-      <!-- クイズプレイ画面 (初期非表示) -->
       <div id="quiz-play-screen" style="display: none; flex-direction: column; gap: 20px;">
         <div class="progress-section">
           <button onclick="showStageSelect()" style="background:none; border:none; font-size:1.2rem; cursor:pointer;">🏠</button>
@@ -143,7 +138,6 @@
         </div>
       </div>
 
-      <!-- クリア結果画面 (初期非表示) -->
       <div class="result-screen" id="result-screen" style="display: none;">
         <img src="images/banner.jpg" alt="バンナー" class="result-banner-img celebrate-anim">
         <h2 style="font-size: 1.8rem; font-weight: 900; color: var(--primary);" id="result-title">🎉 コースクリア！おめでとう！</h2>
@@ -161,7 +155,6 @@
     </main>
   </div>
 
-  <!-- ガチャ開封モーダル -->
   <div class="modal-overlay" id="gacha-modal">
     <div class="modal-card" style="text-align: center;">
       <div class="modal-header">
@@ -182,7 +175,6 @@
     </div>
   </div>
 
-  <!-- 200種類図鑑モーダル -->
   <div class="modal-overlay" id="collection-modal">
     <div class="modal-card" style="max-width: 680px; max-height: 85vh; overflow-y: auto;">
       <div class="modal-header">
@@ -208,7 +200,6 @@
     </div>
   </div>
 
-  <!-- ヒントモーダル -->
   <div class="modal-overlay" id="hint-modal">
     <div class="modal-card">
       <div class="modal-header">
@@ -223,7 +214,6 @@
     </div>
   </div>
 
-  <!-- 解答確認＆正誤判定モーダル -->
   <div class="modal-overlay" id="result-modal">
     <div class="modal-card">
       <div class="modal-header">
@@ -237,7 +227,6 @@
     </div>
   </div>
 
-  <!-- 選択肢ダイアログモーダル -->
   <div class="modal-overlay" id="choice-modal">
     <div class="modal-card">
       <div class="modal-header">
@@ -249,7 +238,6 @@
     </div>
   </div>
 
-  <!-- iPad用オンスクリーンテンキーパッド -->
   <div class="keypad-sheet" id="keypad-sheet">
     <div class="keypad-header">
       <span class="keypad-title">数字を入力しよう</span>
@@ -273,10 +261,9 @@
     </div>
   </div>
 
-  <!-- JS スクリプト読み込み -->
-  <script src="questions.js?v=4"></script>
-  <script src="cards.js?v=4"></script>
-  <script src="sound.js?v=4"></script>
-  <script src="app.js?v=4"></script>
+  <script src="questions.js?v=5"></script>
+  <script src="cards.js?v=5"></script>
+  <script src="sound.js?v=5"></script>
+  <script src="app.js?v=5"></script>
 </body>
 </html>
