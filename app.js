@@ -1,4 +1,4 @@
-// メインアプリケーションロジック (「コースクリアでチケット1枚GET」確定仕様・完全バグ解消版)
+// メインアプリケーションロジック (フリーズ完全防止・第10問クリア画面直行版)
 let currentStageQuestions = [];
 let currentQIdx = 0;
 let userAnswers = {};
@@ -33,15 +33,19 @@ function initApp() {
   } catch (e) {}
 }
 
+function closeAllModals() {
+  document.querySelectorAll('.modal-overlay').forEach(el => {
+    el.classList.remove('active');
+  });
+  const keypad = document.getElementById('keypad-sheet');
+  if (keypad) keypad.classList.remove('active');
+}
+
 function setupModalOverlayClick() {
   document.querySelectorAll('.modal-overlay').forEach(overlay => {
     overlay.addEventListener('click', (e) => {
       if (e.target === overlay) {
         closeModal(overlay.id);
-        // 最終問題のモーダルを閉じた場合は必ずクリア画面へ移行
-        if (overlay.id === 'result-modal' && currentQIdx >= currentStageQuestions.length - 1) {
-          showResultScreen();
-        }
       }
     });
   });
@@ -67,7 +71,7 @@ function updateHeaderStats() {
 
     const bannerSub = document.querySelector('.gacha-ticket-banner div div:last-child');
     if (bannerSub) {
-      bannerSub.innerText = `コースをクリアするごとにガチャチケット1枚GET！ (現在: ${gachaTickets}枚)`;
+      bannerSub.innerText = `コースをクリアするごとにガチャチケット1枚GET！ (所持: ${gachaTickets}枚)`;
     }
   } catch (e) {}
 }
@@ -95,10 +99,13 @@ function renderStageGrid() {
   });
 }
 
+// どんな状態からでも絶対確実トップに戻る安全関数
 function showStageSelect() {
   try { sounds.playTap(); } catch(e){}
+  closeAllModals();
   loadStatsFromStorage();
   updateHeaderStats();
+
   const selectScreen = document.getElementById('stage-select-screen');
   if (selectScreen) selectScreen.style.display = 'flex';
   const playScreen = document.getElementById('quiz-play-screen');
@@ -109,6 +116,7 @@ function showStageSelect() {
 
 function startStage(stageId) {
   try { sounds.playTap(); } catch(e){}
+  closeAllModals();
   currentStageId = stageId;
 
   if (stageId === 5) {
@@ -337,7 +345,7 @@ function normalizeAnswer(val) {
     .replace(/ー/g, '-');
 }
 
-// ★コースクリア確定でガチャチケット1枚付与＆コースクリア画面移行保証★
+// ★第10問クリア時ダイレクトクリア画面移行保証関数★
 function handleSubmitClick() {
   try {
     const q = currentStageQuestions[currentQIdx];
@@ -368,59 +376,46 @@ function handleSubmitClick() {
       }
     });
 
-    const nextBtn = document.getElementById('result-modal-next-btn');
     const isLastQuestionInStage = (currentQIdx === currentStageQuestions.length - 1);
 
     if (isCorrect) {
-      try { sounds.playSuccess(); } catch(e){}
       starCount += 10;
       solvedCount++;
 
-      // ★コース最後の問題を正解した時、ここでチケット1枚を加算＆即時保存！
+      // 最後の問題（第10問）なら即座にチケット1枚加算保存して、クリア画面をダイレクト表示！
       if (isLastQuestionInStage) {
         gachaTickets += 1;
         saveStats();
         updateHeaderStats();
-        try { sounds.playFanfare(); } catch(e){}
-      } else {
-        saveStats();
-        updateHeaderStats();
+        showResultScreen(); // ダイレクトにコース完了画面へ！
+        return;
       }
 
-      // もし最終問題なら、ダイレクトにコース完了画面を表示する動作も保証
+      // 通常の問題の正解時
+      try { sounds.playSuccess(); } catch(e){}
+      saveStats();
+      updateHeaderStats();
+
+      const nextBtn = document.getElementById('result-modal-next-btn');
       document.getElementById('result-modal-icon').innerText = "🎉";
-      document.getElementById('result-modal-title').innerText = isLastQuestionInStage ? "🏆 コース全問正解！" : "Kurwa! 大正解！！";
+      document.getElementById('result-modal-title').innerText = "Kurwa! 大正解！！";
       document.getElementById('result-modal-body').innerHTML = `
         <p style="color: var(--success); font-size: 1.3rem; font-weight:900; margin-bottom:6px;">⭐ スター10個ゲット！</p>
-        ${isLastQuestionInStage ? `
-          <div style="background:linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color:white; border:3px solid #FEF3C7; padding:12px; border-radius:16px; font-weight:900; margin-top:10px; text-align:center;">
-            🎉 コースクリア達成！！<br>
-            <span style="font-size:1.1rem; color:#FEF3C7;">🎁 ガチャチケット1枚GET！（所持: ${gachaTickets}枚）</span>
-          </div>
-        ` : ''}
         ${q.explanation || ''}
       `;
 
       nextBtn.onclick = () => {
         closeModal('result-modal');
-        if (isLastQuestionInStage) {
-          showResultScreen();
-        } else {
-          currentQIdx++;
-          loadQuestion(currentQIdx);
-        }
+        currentQIdx++;
+        loadQuestion(currentQIdx);
       };
-
-      if (isLastQuestionInStage) {
-        nextBtn.innerText = "🏆 コース完了画面へ進む！";
-      } else {
-        nextBtn.innerText = "つぎの問題へ！ ➔";
-      }
+      nextBtn.innerText = "つぎの問題へ！ ➔";
 
       openModal('result-modal');
 
     } else {
       try { sounds.playRetry(); } catch(e){}
+      const nextBtn = document.getElementById('result-modal-next-btn');
       document.getElementById('result-modal-icon').innerText = "🤔";
       document.getElementById('result-modal-title').innerText = "おしい！もう一息！";
       document.getElementById('result-modal-body').innerHTML = `
@@ -453,10 +448,11 @@ function nextQuestion() {
   }
 }
 
-// ★コース完了画面表示関数★
+// ★コース完了画面表示関数 (絶対フリーズなし保証)★
 function showResultScreen() {
   try { sounds.playFanfare(); } catch(e){}
 
+  closeAllModals();
   loadStatsFromStorage();
   updateHeaderStats();
 
@@ -607,7 +603,6 @@ function openModal(id) {
   const el = document.getElementById(id);
   if (el) {
     el.classList.add('active');
-    el.style.display = 'flex';
   }
 }
 
@@ -616,6 +611,5 @@ function closeModal(id) {
   const el = document.getElementById(id);
   if (el) {
     el.classList.remove('active');
-    el.style.display = 'none';
   }
 }

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>ポーランドボールと学ぼう！中2一次関数（カード200種）</title>
-  <link rel="stylesheet" href="style.css?v=18">
+  <link rel="stylesheet" href="style.css?v=19">
 </head>
 <body>
 
@@ -101,7 +101,7 @@
 
       <div id="quiz-play-screen" style="display: none; flex-direction: column; gap: 20px;">
         <div class="progress-section">
-          <button onclick="showStageSelect()" style="background:none; border:none; font-size:1.2rem; cursor:pointer;">🏠</button>
+          <button onclick="showStageSelect()" style="background:#E2E8F0; border:none; font-size:1.2rem; cursor:pointer; padding:6px 12px; border-radius:10px; font-weight:bold;">🏠 トップへ</button>
           <div class="progress-bar-bg">
             <div class="progress-bar-fill" id="progress-fill"></div>
           </div>
@@ -138,6 +138,7 @@
         </div>
       </div>
 
+      <!-- コース完了画面 -->
       <div class="result-screen" id="result-screen" style="display: none;">
         <img src="images/banner.jpg" alt="バンナー" class="result-banner-img celebrate-anim">
         <h2 style="font-size: 1.8rem; font-weight: 900; color: var(--primary);" id="result-title">🎉 コースクリア！おめでとう！</h2>
@@ -155,7 +156,7 @@
     </main>
   </div>
 
-  <div class="modal-overlay" id="gacha-modal" style="display:none;">
+  <div class="modal-overlay" id="gacha-modal">
     <div class="modal-card" style="text-align: center;">
       <div class="modal-header">
         <span style="font-size: 2.5rem;">🎁</span>
@@ -175,7 +176,7 @@
     </div>
   </div>
 
-  <div class="modal-overlay" id="collection-modal" style="display:none;">
+  <div class="modal-overlay" id="collection-modal">
     <div class="modal-card" style="max-width: 680px; max-height: 85vh; overflow-y: auto;">
       <div class="modal-header">
         <span style="font-size: 2rem;">🎴</span>
@@ -200,7 +201,7 @@
     </div>
   </div>
 
-  <div class="modal-overlay" id="hint-modal" style="display:none;">
+  <div class="modal-overlay" id="hint-modal">
     <div class="modal-card">
       <div class="modal-header">
         <span style="font-size: 2rem;">💡</span>
@@ -214,7 +215,7 @@
     </div>
   </div>
 
-  <div class="modal-overlay" id="result-modal" style="display:none;">
+  <div class="modal-overlay" id="result-modal">
     <div class="modal-card">
       <div class="modal-header">
         <span id="result-modal-icon" style="font-size: 2.5rem;">🎉</span>
@@ -227,7 +228,7 @@
     </div>
   </div>
 
-  <div class="modal-overlay" id="choice-modal" style="display:none;">
+  <div class="modal-overlay" id="choice-modal">
     <div class="modal-card">
       <div class="modal-header">
         <h3>あてはまる言葉を選んでね！</h3>
@@ -261,9 +262,9 @@
     </div>
   </div>
 
-  <script src="questions.js?v=18"></script>
-  <script src="cards.js?v=18"></script>
-  <script src="sound.js?v=18"></script>
-  <script src="app.js?v=18"></script>
+  <script src="questions.js?v=19"></script>
+  <script src="cards.js?v=19"></script>
+  <script src="sound.js?v=19"></script>
+  <script src="app.js?v=19"></script>
 </body>
 </html>
