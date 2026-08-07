@@ -1,42 +1,51 @@
-// ポーランドボール カードコレクション (全50カ国・完全イラスト化版)
-
+// ポーランドボールのカードデータベース (全200種)
 function safeGetItem(key) {
-  try { return localStorage.getItem(key); } catch (e) { return null; }
+  try {
+    if (typeof localStorage !== 'undefined' && localStorage) {
+      return localStorage.getItem(key);
+    }
+  } catch (e) {}
+  return null;
 }
 
 function safeSetItem(key, value) {
-  try { localStorage.setItem(key, value); } catch (e) {}
+  try {
+    if (typeof localStorage !== 'undefined' && localStorage) {
+      localStorage.setItem(key, value);
+    }
+  } catch (e) {}
 }
 
-// 50の国・地域の完全イラストグラフィック定義 (英字テキストは一切出さない)
 const COUNTRY_DESIGNS = {
-  PL: { name: "ポーランド", bg: "linear-gradient(180deg, #FFFFFF 50%, #DC2626 50%)", image: "images/polandball.jpg" },
-  JP: { name: "日本", bg: "radial-gradient(circle at center, #DC2626 35%, #FFFFFF 36%)", image: "images/japanball.jpg" },
-  US: { name: "アメリカ", bg: "linear-gradient(135deg, #1D4ED8 40%, #EF4444 40%, #EF4444 60%, #FFFFFF 60%)", image: "images/usaball.jpg" },
-  DE: { name: "ドイツ", bg: "linear-gradient(180deg, #1E293B 33.3%, #DC2626 33.3%, #DC2626 66.6%, #F59E0B 66.6%)", image: "images/germanyball.jpg" },
-  GB: { name: "イギリス", bg: "linear-gradient(135deg, #0284C7 0%, #1E3A8A 100%)", image: "images/ukball.jpg" },
-  FR: { name: "フランス", bg: "linear-gradient(90deg, #1D4ED8 33.3%, #FFFFFF 33.3%, #FFFFFF 66.6%, #DC2626 66.6%)", image: "images/franceball.jpg" },
-  IT: { name: "イタリア", bg: "linear-gradient(90deg, #16A34A 33.3%, #FFFFFF 33.3%, #FFFFFF 66.6%, #DC2626 66.6%)", image: "images/italyball.jpg" },
-  KR: { name: "韓国", bg: "radial-gradient(circle at center, #DC2626 25%, #1D4ED8 26%, #FFFFFF 50%)" },
+  JP: { name: "日本", bg: "radial-gradient(circle at center, #DC2626 35%, #FFFFFF 36%)" },
+  PL: { name: "ポーランド", bg: "linear-gradient(180deg, #FFFFFF 50%, #DC2626 50%)" },
+  US: { name: "アメリカ", bg: "linear-gradient(135deg, #1E3A8A 0%, #3B82F6 50%, #DC2626 100%)" },
+  DE: { name: "ドイツ", bg: "linear-gradient(180deg, #0F172A 33.3%, #DC2626 33.3%, #DC2626 66.6%, #F59E0B 66.6%)" },
+  GB: { name: "イギリス", bg: "linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 50%, #DC2626 100%)" },
+  FR: { name: "フランス", bg: "linear-gradient(90deg, #1D4ED8 33.3%, #FFFFFF 33.3%, #FFFFFF 66.6%, #DC2626 66.6%)" },
+  IT: { name: "イタリア", bg: "linear-gradient(90deg, #16A34A 33.3%, #FFFFFF 33.3%, #FFFFFF 66.6%, #DC2626 66.6%)" },
+  KR: { name: "韓国", bg: "radial-gradient(circle at center, #1D4ED8 25%, #FFFFFF 26%)" },
   CA: { name: "カナダ", bg: "linear-gradient(90deg, #DC2626 25%, #FFFFFF 25%, #FFFFFF 75%, #DC2626 75%)" },
-  BR: { name: "ブラジル", bg: "radial-gradient(circle, #1D4ED8 30%, #F59E0B 31%, #F59E0B 60%, #16A34A 61%)" },
-  AU: { name: "オーストラリア", bg: "linear-gradient(135deg, #0284C7 0%, #1E3A8A 100%)" },
+  BR: { name: "ブラジル", bg: "radial-gradient(circle at center, #1E3A8A 25%, #F59E0B 26%, #F59E0B 60%, #16A34A 61%)" },
+  AU: { name: "オーストラリア", bg: "linear-gradient(135deg, #1E3A8A 0%, #0284C7 100%)" },
   ES: { name: "スペイン", bg: "linear-gradient(180deg, #DC2626 25%, #F59E0B 25%, #F59E0B 75%, #DC2626 75%)" },
-  SE: { name: "スウェーデン", bg: "radial-gradient(circle, #F59E0B 25%, #0284C7 26%)" },
-  FI: { name: "フィンランド", bg: "radial-gradient(circle, #1D4ED8 25%, #FFFFFF 26%)" },
-  NL: { name: "オランダ", bg: "linear-gradient(180deg, #DC2626 33.3%, #FFFFFF 33.3%, #FFFFFF 66.6%, #1D4ED8 66.6%)" },
-  CH: { name: "スイス", bg: "radial-gradient(circle, #FFFFFF 25%, #DC2626 26%)" },
-  EG: { name: "エジプト", bg: "linear-gradient(180deg, #DC2626 33.3%, #FFFFFF 33.3%, #FFFFFF 66.6%, #0F172A 66.6%)" },
-  GR: { name: "ギリシャ", bg: "linear-gradient(180deg, #0284C7 50%, #FFFFFF 50%)" },
+  RU: { name: "ロシア", bg: "linear-gradient(180deg, #FFFFFF 33.3%, #1D4ED8 33.3%, #1D4ED8 66.6%, #DC2626 66.6%)" },
+  CN: { name: "中国", bg: "radial-gradient(circle at 30% 30%, #F59E0B 15%, #DC2626 16%)" },
+  IN: { name: "インド", bg: "linear-gradient(180deg, #EA580C 33.3%, #FFFFFF 33.3%, #FFFFFF 66.6%, #16A34A 66.6%)" },
   MX: { name: "メキシコ", bg: "linear-gradient(90deg, #16A34A 33.3%, #FFFFFF 33.3%, #FFFFFF 66.6%, #DC2626 66.6%)" },
   AR: { name: "アルゼンチン", bg: "linear-gradient(180deg, #38BDF8 33.3%, #FFFFFF 33.3%, #FFFFFF 66.6%, #38BDF8 66.6%)" },
-  IN: { name: "インド", bg: "linear-gradient(180deg, #F97316 33.3%, #FFFFFF 33.3%, #FFFFFF 66.6%, #16A34A 66.6%)" },
-  CN: { name: "中国", bg: "radial-gradient(circle at 30% 30%, #F59E0B 20%, #DC2626 21%)" },
-  VN: { name: "ベトナム", bg: "radial-gradient(circle at center, #F59E0B 30%, #DC2626 31%)" },
-  TH: { name: "タイ", bg: "linear-gradient(180deg, #DC2626 20%, #FFFFFF 20%, #FFFFFF 40%, #1E3A8A 40%, #1E3A8A 60%, #FFFFFF 60%, #FFFFFF 80%, #DC2626 80%)" },
-  ID: { name: "インドネシア", bg: "linear-gradient(180deg, #DC2626 50%, #FFFFFF 50%)" },
-  PH: { name: "フィリピン", bg: "linear-gradient(180deg, #1D4ED8 50%, #DC2626 50%)" },
+  NL: { name: "オランダ", bg: "linear-gradient(180deg, #DC2626 33.3%, #FFFFFF 33.3%, #FFFFFF 66.6%, #1D4ED8 66.6%)" },
+  SE: { name: "スウェーデン", bg: "radial-gradient(circle at center, #F59E0B 25%, #0284C7 26%)" },
+  CH: { name: "スイス", bg: "radial-gradient(circle at center, #FFFFFF 30%, #DC2626 31%)" },
+  EG: { name: "エジプト", bg: "linear-gradient(180deg, #DC2626 33.3%, #FFFFFF 33.3%, #FFFFFF 66.6%, #0F172A 66.6%)" },
+  GR: { name: "ギリシャ", bg: "linear-gradient(180deg, #0284C7 0%, #FFFFFF 50%, #0284C7 100%)" },
+  FI: { name: "フィンランド", bg: "radial-gradient(circle at center, #0284C7 30%, #FFFFFF 31%)" },
   SG: { name: "シンガポール", bg: "linear-gradient(180deg, #DC2626 50%, #FFFFFF 50%)" },
+  TH: { name: "タイ", bg: "linear-gradient(180deg, #DC2626 20%, #FFFFFF 20%, #FFFFFF 40%, #1E3A8A 40%, #1E3A8A 60%, #FFFFFF 60%, #FFFFFF 80%, #DC2626 80%)" },
+  VN: { name: "ベトナム", bg: "radial-gradient(circle at center, #F59E0B 25%, #DC2626 26%)" },
+  PH: { name: "フィリピン", bg: "linear-gradient(180deg, #1D4ED8 50%, #DC2626 50%)" },
+  ID: { name: "インドネシア", bg: "linear-gradient(180deg, #DC2626 50%, #FFFFFF 50%)" },
+  MY: { name: "マレーシア", bg: "linear-gradient(180deg, #DC2626 0%, #FFFFFF 100%)" },
   NZ: { name: "ニュージーランド", bg: "linear-gradient(135deg, #1E3A8A 0%, #0284C7 100%)" },
   ZA: { name: "南アフリカ", bg: "linear-gradient(135deg, #16A34A 35%, #DC2626 35%, #DC2626 65%, #0284C7 65%)" },
   UA: { name: "ウクライナ", bg: "linear-gradient(180deg, #0284C7 50%, #F59E0B 50%)" },
@@ -60,7 +69,7 @@ const COUNTRY_DESIGNS = {
   AQ: { name: "南極ボール", bg: "linear-gradient(180deg, #38BDF8 0%, #0284C7 100%)" },
   UN: { name: "国連ボール", bg: "radial-gradient(circle, #FFFFFF 30%, #0284C7 31%)" },
   PB: { name: "ハイパーポーランド", bg: "linear-gradient(180deg, #FFFFFF 50%, #DC2626 50%)", image: "images/polandball.jpg" }
-];
+};
 
 const RARITIES = [
   { level: "N", name: "ノーマル", weight: 60, color: "#94A3B8", border: "#64748B", bg: "#F1F5F9" },
@@ -101,31 +110,30 @@ function saveOwnedCards() {
 }
 
 function drawCardGacha() {
-  const rand = Math.random() * 100;
-  let selectedRarity = "N";
+  let rand = Math.random() * 100;
+  let selectedRarity = RARITIES[0];
   let cumulative = 0;
-
-  for (const r of RARITIES) {
+  for (let r of RARITIES) {
     cumulative += r.weight;
     if (rand <= cumulative) {
-      selectedRarity = r.level;
+      selectedRarity = r;
       break;
     }
   }
 
-  const candidates = CARD_DATABASE.filter(c => c.rarity === selectedRarity);
-  const drawnCard = candidates[Math.floor(Math.random() * candidates.length)];
+  const pool = CARD_DATABASE.filter(c => c.rarity === selectedRarity.level);
+  const card = pool[Math.floor(Math.random() * pool.length)] || CARD_DATABASE[0];
 
-  const isNew = !userOwnedCards[drawnCard.id];
-  userOwnedCards[drawnCard.id] = (userOwnedCards[drawnCard.id] || 0) + 1;
+  const isNew = !userOwnedCards[card.id];
+  userOwnedCards[card.id] = (userOwnedCards[card.id] || 0) + 1;
   saveOwnedCards();
 
-  return { card: drawnCard, isNew: isNew };
+  return { card, isNew };
 }
 
 function getCardCollectionStats() {
   const ownedCount = Object.keys(userOwnedCards).length;
   const totalCount = CARD_DATABASE.length;
-  const percent = Math.floor((ownedCount / totalCount) * 100);
+  const percent = totalCount > 0 ? Math.floor((ownedCount / totalCount) * 100) : 0;
   return { ownedCount, totalCount, percent };
 }
