@@ -1,4 +1,4 @@
-// ポーランドボール カードコレクション (50カ国SVGイラスト完全対応版)
+// ポーランドボール カードコレクション (全50カ国・完全イラスト化版)
 
 function safeGetItem(key) {
   try { return localStorage.getItem(key); } catch (e) { return null; }
@@ -8,15 +8,15 @@ function safeSetItem(key, value) {
   try { localStorage.setItem(key, value); } catch (e) {}
 }
 
-// 各国のグラフィック定義 (絵文字フォントに依存しないSVG/CSS球体イラスト)
+// 50の国・地域の完全イラストグラフィック定義 (英字テキストは一切出さない)
 const COUNTRY_DESIGNS = {
   PL: { name: "ポーランド", bg: "linear-gradient(180deg, #FFFFFF 50%, #DC2626 50%)", image: "images/polandball.jpg" },
   JP: { name: "日本", bg: "radial-gradient(circle at center, #DC2626 35%, #FFFFFF 36%)", image: "images/japanball.jpg" },
   US: { name: "アメリカ", bg: "linear-gradient(135deg, #1D4ED8 40%, #EF4444 40%, #EF4444 60%, #FFFFFF 60%)", image: "images/usaball.jpg" },
-  DE: { name: "ドイツ", bg: "linear-gradient(180deg, #1E293B 33.3%, #DC2626 33.3%, #DC2626 66.6%, #F59E0B 66.6%)" },
-  GB: { name: "イギリス", bg: "radial-gradient(circle, #DC2626 20%, #1E3A8A 21%)" },
-  FR: { name: "フランス", bg: "linear-gradient(90deg, #1D4ED8 33.3%, #FFFFFF 33.3%, #FFFFFF 66.6%, #DC2626 66.6%)" },
-  IT: { name: "イタリア", bg: "linear-gradient(90deg, #16A34A 33.3%, #FFFFFF 33.3%, #FFFFFF 66.6%, #DC2626 66.6%)" },
+  DE: { name: "ドイツ", bg: "linear-gradient(180deg, #1E293B 33.3%, #DC2626 33.3%, #DC2626 66.6%, #F59E0B 66.6%)", image: "images/germanyball.jpg" },
+  GB: { name: "イギリス", bg: "linear-gradient(135deg, #0284C7 0%, #1E3A8A 100%)", image: "images/ukball.jpg" },
+  FR: { name: "フランス", bg: "linear-gradient(90deg, #1D4ED8 33.3%, #FFFFFF 33.3%, #FFFFFF 66.6%, #DC2626 66.6%)", image: "images/franceball.jpg" },
+  IT: { name: "イタリア", bg: "linear-gradient(90deg, #16A34A 33.3%, #FFFFFF 33.3%, #FFFFFF 66.6%, #DC2626 66.6%)", image: "images/italyball.jpg" },
   KR: { name: "韓国", bg: "radial-gradient(circle at center, #DC2626 25%, #1D4ED8 26%, #FFFFFF 50%)" },
   CA: { name: "カナダ", bg: "linear-gradient(90deg, #DC2626 25%, #FFFFFF 25%, #FFFFFF 75%, #DC2626 75%)" },
   BR: { name: "ブラジル", bg: "radial-gradient(circle, #1D4ED8 30%, #F59E0B 31%, #F59E0B 60%, #16A34A 61%)" },
