@@ -1,4 +1,4 @@
-// メインアプリケーションロジック (フリーズ完全防止・第10問クリア画面直行版)
+// メインアプリケーションロジック (コースクリア画面ポップアップ完全保証版)
 let currentStageQuestions = [];
 let currentQIdx = 0;
 let userAnswers = {};
@@ -99,7 +99,6 @@ function renderStageGrid() {
   });
 }
 
-// どんな状態からでも絶対確実トップに戻る安全関数
 function showStageSelect() {
   try { sounds.playTap(); } catch(e){}
   closeAllModals();
@@ -335,6 +334,7 @@ function handleHintClick() {
   openModal('hint-modal');
 }
 
+// マイナス記号のゆらぎ（全角、半角、ダッシュ）を強力に吸収
 function normalizeAnswer(val) {
   if (val === undefined || val === null) return "";
   return String(val)
@@ -342,10 +342,10 @@ function normalizeAnswer(val) {
     .replace(/\s+/g, '')
     .replace(/[（\(]/g, '(')
     .replace(/[）\)]/g, ')')
-    .replace(/ー/g, '-');
+    .replace(/[ー−—–]/g, '-');
 }
 
-// ★第10問クリア時ダイレクトクリア画面移行保証関数★
+// 解答ボタンタップ時の絶対確実な判定＆コース完了処理
 function handleSubmitClick() {
   try {
     const q = currentStageQuestions[currentQIdx];
@@ -382,12 +382,12 @@ function handleSubmitClick() {
       starCount += 10;
       solvedCount++;
 
-      // 最後の問題（第10問）なら即座にチケット1枚加算保存して、クリア画面をダイレクト表示！
+      // ★コース最後の問題を正解した時★
       if (isLastQuestionInStage) {
-        gachaTickets += 1;
+        gachaTickets += 1; // チケット1枚確実に加算！
         saveStats();
         updateHeaderStats();
-        showResultScreen(); // ダイレクトにコース完了画面へ！
+        showResultScreen(); // コース完了画面を絶対表示！
         return;
       }
 
@@ -448,7 +448,7 @@ function nextQuestion() {
   }
 }
 
-// ★コース完了画面表示関数 (絶対フリーズなし保証)★
+// ★コース完了画面表示関数 (100%失敗なし保証)★
 function showResultScreen() {
   try { sounds.playFanfare(); } catch(e){}
 
@@ -456,7 +456,12 @@ function showResultScreen() {
   loadStatsFromStorage();
   updateHeaderStats();
 
-  document.getElementById('quiz-play-screen').style.display = 'none';
+  // 画面要素を切り替え
+  const playScreen = document.getElementById('quiz-play-screen');
+  if (playScreen) playScreen.style.display = 'none';
+
+  const selectScreen = document.getElementById('stage-select-screen');
+  if (selectScreen) selectScreen.style.display = 'none';
 
   const resultScreen = document.getElementById('result-screen');
   if (resultScreen) {
@@ -469,8 +474,8 @@ function showResultScreen() {
   const descEl = document.getElementById('result-desc');
   if (descEl) {
     descEl.innerHTML = `
-      全 ${currentStageQuestions.length} 問見事クリア！<br>
-      <div style="background:linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color:white; border:3px solid #FEF3C7; padding:14px 20px; border-radius:16px; font-weight:900; margin-top:12px; box-shadow:0 6px 16px rgba(245,158,11,0.4);">
+      全 ${currentStageQuestions ? currentStageQuestions.length : 10} 問見事クリア！<br>
+      <div style="background:linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color:white; border:3px solid #FEF3C7; padding:16px 20px; border-radius:18px; font-weight:900; margin-top:14px; box-shadow:0 8px 20px rgba(245,158,11,0.4); text-align:center;">
         🎁 ガチャチケット1枚獲得！（現在の所持数: ${gachaTickets}枚）
       </div>
     `;
