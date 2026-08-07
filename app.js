@@ -1,4 +1,4 @@
-// メインアプリケーションロジック (ガチャチケット付与・永続化絶対確実版)
+// メインアプリケーションロジック (図鑑モーダル絶対起動保証版)
 let currentStageQuestions = [];
 let currentQIdx = 0;
 let userAnswers = {};
@@ -8,9 +8,8 @@ let keypadValue = "";
 let currentStageId = 1;
 
 let solvedCount = 0;
-let gachaTickets = 3; // 初期プレゼント3枚！
+let gachaTickets = 3;
 
-// ローカルストレージ読み込み
 const savedTicketsStr = safeGetItem('polandball_gacha_tickets');
 if (savedTicketsStr !== null) {
   gachaTickets = parseInt(savedTicketsStr, 10);
@@ -68,7 +67,6 @@ function updateHeaderStats() {
     const starEl = document.getElementById('star-count');
     if (starEl) starEl.innerText = starCount;
 
-    // あと〇問でチケット獲得かの表示
     const remainder = 5 - (solvedCount % 5);
     const bannerSub = document.querySelector('.gacha-ticket-banner div div:last-child');
     if (bannerSub) {
@@ -345,7 +343,6 @@ function normalizeAnswer(val) {
     .replace(/ー/g, '-');
 }
 
-// ★ガチャチケットの加算・カウントロジック絶対保証★
 function handleSubmitClick() {
   try {
     const q = currentStageQuestions[currentQIdx];
@@ -384,7 +381,6 @@ function handleSubmitClick() {
       solvedCount++;
       
       let ticketEarnedNotice = "";
-      // 5問正解ごとに必ず1枚チケット付与！
       if (solvedCount % 5 === 0) {
         gachaTickets++;
         try { sounds.playFanfare(); } catch(e){}
@@ -522,9 +518,12 @@ function doDrawGacha() {
 
 let currentCollectionFilter = 'ALL';
 
+// ★図鑑モーダルの絶対起動関数★
 function openCardCollectionModal() {
   try { sounds.playTap(); } catch(e){}
-  renderCardCollectionGrid();
+  try {
+    renderCardCollectionGrid();
+  } catch (e) {}
   openModal('collection-modal');
 }
 
@@ -543,39 +542,46 @@ function filterCardCollection(filter) {
 }
 
 function renderCardCollectionGrid() {
-  const stats = getCardCollectionStats();
-  document.getElementById('collection-stats-text').innerText = `${stats.ownedCount} / ${stats.totalCount} 枚 (${stats.percent}%)`;
+  try {
+    const stats = getCardCollectionStats();
+    const statsTextEl = document.getElementById('collection-stats-text');
+    if (statsTextEl) {
+      statsTextEl.innerText = `${stats.ownedCount} / ${stats.totalCount} 枚 (${stats.percent}%)`;
+    }
 
-  const container = document.getElementById('card-collection-grid');
-  container.innerHTML = '';
+    const container = document.getElementById('card-collection-grid');
+    if (!container) return;
+    container.innerHTML = '';
 
-  let list = CARD_DATABASE;
-  if (currentCollectionFilter !== 'ALL') {
-    list = CARD_DATABASE.filter(c => c.rarity === currentCollectionFilter);
-  }
+    let list = CARD_DATABASE || [];
+    if (currentCollectionFilter !== 'ALL') {
+      list = CARD_DATABASE.filter(c => c.rarity === currentCollectionFilter);
+    }
 
-  list.forEach(card => {
-    const isOwned = !!userOwnedCards[card.id];
-    const count = userOwnedCards[card.id] || 0;
+    list.forEach(card => {
+      const isOwned = !!(userOwnedCards && userOwnedCards[card.id]);
+      const count = (userOwnedCards && userOwnedCards[card.id]) || 0;
 
-    const item = document.createElement('div');
-    item.className = `pb-card-item ${isOwned ? '' : 'unowned'}`;
-    item.style.background = card.rarityBg;
-    item.style.border = `3px solid ${card.rarityBorder}`;
+      const item = document.createElement('div');
+      item.className = `pb-card-item ${isOwned ? '' : 'unowned'}`;
+      item.style.background = card.rarityBg || '#F1F5F9';
+      item.style.border = `3px solid ${card.rarityBorder || '#64748B'}`;
 
-    item.innerHTML = `
-      <div class="pb-card-rarity" style="background: ${card.rarityBorder};">${card.rarity}</div>
-      <div class="pb-card-illustration">${renderCardIllustration(card)}</div>
-      <div class="pb-card-title">${card.countryName}</div>
-      ${isOwned ? `<div style="font-size: 0.7rem; font-weight: 800; color: #475569;">x${count}枚</div>` : '<div style="font-size: 0.75rem; color:#94A3B8;">未獲得</div>'}
-    `;
-    container.appendChild(item);
-  });
+      item.innerHTML = `
+        <div class="pb-card-rarity" style="background: ${card.rarityBorder || '#64748B'};">${card.rarity}</div>
+        <div class="pb-card-illustration">${renderCardIllustration(card)}</div>
+        <div class="pb-card-title">${card.countryName}</div>
+        ${isOwned ? `<div style="font-size: 0.7rem; font-weight: 800; color: #475569;">x${count}枚</div>` : '<div style="font-size: 0.75rem; color:#94A3B8;">未獲得</div>'}
+      `;
+      container.appendChild(item);
+    });
+  } catch (err) {}
 }
 
 function renderCardIllustration(card) {
+  if (!card) return '';
   if (card.image) {
-    return `<img src="${card.image}" alt="${card.countryName}" style="width:76px; height:76px; border-radius:50%; border:3px solid white; box-shadow:0 6px 14px rgba(0,0,0,0.2); object-fit:cover;">`;
+    return `<img src="${card.image}" alt="${card.countryName || ''}" style="width:76px; height:76px; border-radius:50%; border:3px solid white; box-shadow:0 6px 14px rgba(0,0,0,0.2); object-fit:cover;">`;
   } else {
     return `
       <div class="pb-sphere-graphic" style="background:${card.bgStyle || '#DC2626'};">
@@ -590,10 +596,17 @@ function renderCardIllustration(card) {
 
 function openModal(id) {
   const el = document.getElementById(id);
-  if (el) el.classList.add('active');
+  if (el) {
+    el.classList.add('active');
+    el.style.display = 'flex';
+  }
 }
+
 function closeModal(id) {
   try { sounds.playTap(); } catch(e){}
   const el = document.getElementById(id);
-  if (el) el.classList.remove('active');
+  if (el) {
+    el.classList.remove('active');
+    el.style.display = 'none';
+  }
 }
