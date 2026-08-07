@@ -1,4 +1,4 @@
-// メインアプリケーションロジック (グラフ描画パス完全バグ修正版)
+// メインアプリケーションロジック (ガチャチケット付与・永続化絶対確実版)
 let currentStageQuestions = [];
 let currentQIdx = 0;
 let userAnswers = {};
@@ -8,12 +8,22 @@ let keypadValue = "";
 let currentStageId = 1;
 
 let solvedCount = 0;
-let gachaTickets = 0;
+let gachaTickets = 3; // 初期プレゼント3枚！
 
+// ローカルストレージ読み込み
 const savedTicketsStr = safeGetItem('polandball_gacha_tickets');
-if (savedTicketsStr) gachaTickets = parseInt(savedTicketsStr, 10) || 0;
+if (savedTicketsStr !== null) {
+  gachaTickets = parseInt(savedTicketsStr, 10);
+  if (isNaN(gachaTickets)) gachaTickets = 3;
+} else {
+  safeSetItem('polandball_gacha_tickets', '3');
+}
+
 const savedSolvedStr = safeGetItem('polandball_solved_count');
-if (savedSolvedStr) solvedCount = parseInt(savedSolvedStr, 10) || 0;
+if (savedSolvedStr !== null) {
+  solvedCount = parseInt(savedSolvedStr, 10);
+  if (isNaN(solvedCount)) solvedCount = 0;
+}
 
 function saveStats() {
   safeSetItem('polandball_gacha_tickets', gachaTickets.toString());
@@ -22,6 +32,7 @@ function saveStats() {
 
 function initApp() {
   try {
+    saveStats();
     renderStageGrid();
     updateHeaderStats();
     showStageSelect();
@@ -50,10 +61,23 @@ function updateHeaderStats() {
     const stats = getCardCollectionStats();
     const percentEl = document.getElementById('collection-percent');
     if (percentEl) percentEl.innerText = `${stats.percent}% (${stats.ownedCount}/200)`;
+    
     const ticketEl = document.getElementById('ticket-count');
     if (ticketEl) ticketEl.innerText = gachaTickets;
+
     const starEl = document.getElementById('star-count');
     if (starEl) starEl.innerText = starCount;
+
+    // あと〇問でチケット獲得かの表示
+    const remainder = 5 - (solvedCount % 5);
+    const bannerSub = document.querySelector('.gacha-ticket-banner div div:last-child');
+    if (bannerSub) {
+      if (remainder === 5) {
+        bannerSub.innerText = `正解数: ${solvedCount}問！ あと5問でチケットGET！`;
+      } else {
+        bannerSub.innerText = `正解数: ${solvedCount}問！ あと ${remainder} 問正解でチケットGET！`;
+      }
+    }
   } catch (e) {}
 }
 
@@ -149,7 +173,6 @@ function loadQuestion(index) {
   renderGraph(q.graphData);
 }
 
-// 完全に正しいCanvas座標軸描画機能 (余計な斜め線を追放)
 function renderGraph(graphData) {
   const canvas = document.getElementById('graphCanvas');
   if (!canvas) return;
@@ -163,7 +186,6 @@ function renderGraph(graphData) {
   const width = rect.width;
   const height = rect.height;
 
-  // キャンバスをクリア
   ctx.fillStyle = '#FAFAFA';
   ctx.fillRect(0, 0, width, height);
 
@@ -171,7 +193,6 @@ function renderGraph(graphData) {
   const originY = height / 2;
   const scale = 14;
 
-  // グリッド線
   ctx.strokeStyle = '#E2E8F0';
   ctx.lineWidth = 1;
   for (let x = originX % scale; x < width; x += scale) {
@@ -181,29 +202,17 @@ function renderGraph(graphData) {
     ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke();
   }
 
-  // ★修正箇所: x軸・y軸を正確に一直線に描画★
   ctx.strokeStyle = '#64748B';
   ctx.lineWidth = 2;
-  // x軸 (水平線)
-  ctx.beginPath(); 
-  ctx.moveTo(0, originY); 
-  ctx.lineTo(width, originY); 
-  ctx.stroke();
-  
-  // y軸 (垂直線)
-  ctx.beginPath(); 
-  ctx.moveTo(originX, 0); 
-  ctx.lineTo(originX, height); 
-  ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0, originY); ctx.lineTo(width, originY); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(originX, 0); ctx.lineTo(originX, height); ctx.stroke();
 
-  // ラベル文字
   ctx.fillStyle = '#475569';
   ctx.font = 'bold 11px "M PLUS Rounded 1c"';
   ctx.fillText('x', width - 12, originY - 6);
   ctx.fillText('y', originX + 6, 12);
   ctx.fillText('O', originX - 12, originY + 12);
 
-  // 一次関数の直線描画 y = ax + b
   if (graphData && typeof graphData.a === 'number') {
     const a = graphData.a;
     const b = graphData.b;
@@ -221,7 +230,6 @@ function renderGraph(graphData) {
     ctx.lineTo(width, originY - yMax * scale);
     ctx.stroke();
 
-    // 切片 (0, b) の紫色の点
     const interceptScreenY = originY - b * scale;
     if (interceptScreenY >= 0 && interceptScreenY <= height) {
       ctx.fillStyle = '#8B5CF6';
@@ -337,6 +345,7 @@ function normalizeAnswer(val) {
     .replace(/ー/g, '-');
 }
 
+// ★ガチャチケットの加算・カウントロジック絶対保証★
 function handleSubmitClick() {
   try {
     const q = currentStageQuestions[currentQIdx];
@@ -375,10 +384,22 @@ function handleSubmitClick() {
       solvedCount++;
       
       let ticketEarnedNotice = "";
+      // 5問正解ごとに必ず1枚チケット付与！
       if (solvedCount % 5 === 0) {
         gachaTickets++;
         try { sounds.playFanfare(); } catch(e){}
-        ticketEarnedNotice = `<div style="background:#FEF3C7; color:#D97706; border:2px dashed #F59E0B; padding:10px; border-radius:12px; font-weight:900; margin-top:10px;">🎁 5問正解達成！ ガチャチケット1枚GET！</div>`;
+        ticketEarnedNotice = `
+          <div style="background:linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color:white; border:3px solid #FEF3C7; padding:12px; border-radius:16px; font-weight:900; margin-top:12px; box-shadow:0 6px 16px rgba(245,158,11,0.4); animation:celebrate 0.5s ease;">
+            🎉 5問正解達成！ ガチャチケット1枚GET！（所持: ${gachaTickets}枚）
+          </div>
+        `;
+      } else {
+        const remaining = 5 - (solvedCount % 5);
+        ticketEarnedNotice = `
+          <div style="background:#F1F5F9; color:#475569; padding:8px; border-radius:12px; font-weight:800; font-size:0.85rem; margin-top:10px;">
+            🎟️ あと ${remaining} 問正解でガチャチケットGET！
+          </div>
+        `;
       }
 
       saveStats();
