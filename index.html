@@ -4,18 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>ポーランドボールと学ぼう！中2一次関数（カード200種）</title>
-  <link rel="stylesheet" href="style_v2.css?v=20260807_REAL_FINAL">
+  <link rel="stylesheet" href="style_v2.css?v=20260807_ULTRA_FINAL_100">
 </head>
 <body>
 
-  <!-- どんな状態でも一発でホームに戻る超強固インラインボタン -->
-  <button id="fixed-home-btn" onclick="window.location.href = window.location.href.split('?')[0].split('#')[0];" style="position: fixed; top: 12px; right: 12px; z-index: 999999; background: #DC2626; color: white; border: 3px solid white; padding: 10px 18px; border-radius: 50px; font-weight: 900; font-size: 1rem; box-shadow: 0 6px 20px rgba(0,0,0,0.4); cursor: pointer;">
-    🏠 ホームへ戻る
-  </button>
-
   <div id="app-container">
     <header class="app-header">
-      <div class="header-brand" id="brand-home-trigger" onclick="window.location.href = window.location.href.split('?')[0].split('#')[0];" style="cursor:pointer;">
+      <div class="header-brand" id="brand-home-trigger" onclick="event.stopPropagation(); forceGoHome();" style="cursor:pointer;">
         <img src="images/polandball.jpg" alt="ポーランドボール" class="header-logo">
         <div class="header-title">
           <h1>一次関数マスター！</h1>
@@ -107,8 +102,11 @@
 
       <!-- 2. クイズプレイ画面 -->
       <div id="quiz-play-screen" style="display: none; flex-direction: column; gap: 20px;">
-        <div class="progress-section">
-          <button onclick="window.location.href = window.location.href.split('?')[0].split('#')[0];" style="background:#E2E8F0; border:none; font-size:1.1rem; cursor:pointer; padding:8px 14px; border-radius:12px; font-weight:900; color:#334155;">🏠 トップへ</button>
+        <div class="progress-section" style="position: relative; z-index: 9999;">
+          <!-- 最前面最優先で絶対にクリックできる「トップへ」ボタン -->
+          <button id="btn-quiz-top-home" onclick="event.stopPropagation(); forceGoHome();" style="position: relative; z-index: 99999; pointer-events: auto !important; background: #E2E8F0; border: 2px solid #CBD5E1; font-size: 1.15rem; cursor: pointer; padding: 8px 16px; border-radius: 14px; font-weight: 900; color: #1E293B; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+            🏠 トップへ
+          </button>
           <div class="progress-bar-bg">
             <div class="progress-bar-fill" id="progress-fill"></div>
           </div>
@@ -134,11 +132,12 @@
             <canvas id="graphCanvas"></canvas>
           </div>
 
-          <div class="action-bar">
-            <button class="btn-hint" id="main-hint-btn">
+          <div class="action-bar" style="position: relative; z-index: 9999;">
+            <button class="btn-hint" id="main-hint-btn" style="position: relative; z-index: 99999; pointer-events: auto !important;">
               <span>💡 わからない</span>
             </button>
-            <button class="btn-submit" id="main-submit-btn">
+            <!-- 最前面最優先で絶対にクリックできる「解答する！」ボタン -->
+            <button class="btn-submit" id="main-submit-btn" onclick="event.stopPropagation(); handleSubmitClick();" style="position: relative; z-index: 99999; pointer-events: auto !important;">
               <span>✨ 解答する！</span>
             </button>
           </div>
@@ -155,7 +154,7 @@
           <span>🎁 ガチャを引いてカードGET！</span>
         </button>
 
-        <button class="btn-submit" onclick="window.location.href = window.location.href.split('?')[0].split('#')[0];" style="margin-top: 10px; width: 90%;">
+        <button class="btn-submit" onclick="event.stopPropagation(); forceGoHome();" style="margin-top: 10px; width: 90%;">
           <span>🗺️ コース選択へもどる</span>
         </button>
       </div>
@@ -275,10 +274,9 @@
     </div>
   </div>
 
-  <!-- _v2 ファイルへの直接参照 (古いキャッシュ完全無効化) -->
-  <script src="questions_v2.js?v=20260807_REAL_FINAL"></script>
-  <script src="cards_v2.js?v=20260807_REAL_FINAL"></script>
-  <script src="sound.js?v=20260807_REAL_FINAL"></script>
-  <script src="app_v2.js?v=20260807_REAL_FINAL"></script>
+  <script src="questions_v2.js?v=20260807_ULTRA_FINAL_100"></script>
+  <script src="cards_v2.js?v=20260807_ULTRA_FINAL_100"></script>
+  <script src="sound.js?v=20260807_ULTRA_FINAL_100"></script>
+  <script src="app_v2.js?v=20260807_ULTRA_FINAL_100"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-// メインアプリケーションロジック v2 (絶対確実トップ復帰＆キャッシュ破棄保証)
+// メインアプリケーションロジック v2 (最優先タップ・直接イベント固定バインド版)
 var currentStageQuestions = [];
 var currentQIdx = 0;
 var userAnswers = {};
@@ -55,15 +55,31 @@ function bindDirectEvents() {
   try {
     const submitBtn = document.getElementById('main-submit-btn');
     if (submitBtn) {
-      submitBtn.onclick = handleSubmitClick;
+      submitBtn.onclick = (e) => {
+        if (e) e.stopPropagation();
+        handleSubmitClick();
+      };
+    }
+    const topHomeBtn = document.getElementById('btn-quiz-top-home');
+    if (topHomeBtn) {
+      topHomeBtn.onclick = (e) => {
+        if (e) e.stopPropagation();
+        forceGoHome();
+      };
     }
     const hintBtn = document.getElementById('main-hint-btn');
     if (hintBtn) {
-      hintBtn.onclick = handleHintClick;
+      hintBtn.onclick = (e) => {
+        if (e) e.stopPropagation();
+        handleHintClick();
+      };
     }
     const brandTrigger = document.getElementById('brand-home-trigger');
     if (brandTrigger) {
-      brandTrigger.onclick = forceGoHome;
+      brandTrigger.onclick = (e) => {
+        if (e) e.stopPropagation();
+        forceGoHome();
+      };
     }
     const collectionBtn = document.getElementById('btn-open-collection');
     if (collectionBtn) {
