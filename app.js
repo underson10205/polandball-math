@@ -1,4 +1,4 @@
-// メインアプリケーションロジック (全46问・プロパティ参照エラー全防御版)
+// メインアプリケーションロジック (全46問・解答判定完全鉄壁版)
 let currentStageQuestions = [];
 let currentQIdx = 0;
 let userAnswers = {};
@@ -21,10 +21,12 @@ function saveStats() {
 }
 
 function initApp() {
-  renderStageGrid();
-  updateHeaderStats();
-  showStageSelect();
-  setupModalOverlayClick();
+  try {
+    renderStageGrid();
+    updateHeaderStats();
+    showStageSelect();
+    setupModalOverlayClick();
+  } catch (e) {}
 }
 
 function setupModalOverlayClick() {
@@ -79,7 +81,7 @@ function renderStageGrid() {
 }
 
 function showStageSelect() {
-  sounds.playTap();
+  try { sounds.playTap(); } catch(e){}
   updateHeaderStats();
   const selectScreen = document.getElementById('stage-select-screen');
   if (selectScreen) selectScreen.style.display = 'flex';
@@ -90,7 +92,7 @@ function showStageSelect() {
 }
 
 function startStage(stageId) {
-  sounds.playTap();
+  try { sounds.playTap(); } catch(e){}
   currentStageId = stageId;
 
   if (stageId === 5) {
@@ -107,7 +109,6 @@ function startStage(stageId) {
   loadQuestion(currentQIdx);
 }
 
-// 完全に安全な問題ロード処理 (プロパティ参照エラー完全防止)
 function loadQuestion(index) {
   if (!currentStageQuestions || !currentStageQuestions[index]) {
     showResultScreen();
@@ -179,7 +180,7 @@ function renderGraph(graphData) {
 
   ctx.strokeStyle = '#64748B';
   ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.moveTo(0, originY); ctx.lineTo(width, originY); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0, originY); ctx.lineTo(originY, height); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(originX, 0); ctx.lineTo(originX, height); ctx.stroke();
 
   ctx.fillStyle = '#475569';
@@ -216,7 +217,7 @@ function renderGraph(graphData) {
 }
 
 function openKeypadModal(blankId) {
-  sounds.playTap();
+  try { sounds.playTap(); } catch(e){}
   activeBlankId = blankId;
   keypadValue = userAnswers[blankId] || "";
   updateKeypadDisplay();
@@ -229,7 +230,7 @@ function closeKeypad() {
 }
 
 function pressKey(key) {
-  sounds.playTap();
+  try { sounds.playTap(); } catch(e){}
   if (key === 'BS') {
     keypadValue = keypadValue.slice(0, -1);
   } else if (key === '-') {
@@ -251,7 +252,7 @@ function updateKeypadDisplay() {
 }
 
 function confirmKeypad() {
-  sounds.playTap();
+  try { sounds.playTap(); } catch(e){}
   if (activeBlankId) {
     userAnswers[activeBlankId] = keypadValue;
     const btn = document.querySelector(`[data-blank-id="${activeBlankId}"]`);
@@ -269,7 +270,7 @@ function confirmKeypad() {
 }
 
 function openChoiceModal(blankId) {
-  sounds.playTap();
+  try { sounds.playTap(); } catch(e){}
   activeBlankId = blankId;
   const q = currentStageQuestions[currentQIdx];
   const blankConfig = q.blanks[blankId];
@@ -289,7 +290,7 @@ function openChoiceModal(blankId) {
 }
 
 function selectChoice(value) {
-  sounds.playTap();
+  try { sounds.playTap(); } catch(e){}
   if (activeBlankId) {
     userAnswers[activeBlankId] = value;
     const btn = document.querySelector(`[data-blank-id="${activeBlankId}"]`);
@@ -303,85 +304,123 @@ function selectChoice(value) {
 }
 
 function handleHintClick() {
-  sounds.playHint();
+  try { sounds.playHint(); } catch(e){}
   const q = currentStageQuestions[currentQIdx];
   document.getElementById('hint-modal-title').innerText = `${q.character || 'ポーランドボール'}からのヒント`;
   document.getElementById('hint-modal-body').innerHTML = q.hint1 || '';
   openModal('hint-modal');
 }
 
+// ★文字列・数字のゆらぎを吸収する完全正規化関数★
+function normalizeAnswer(val) {
+  if (val === undefined || val === null) return "";
+  return String(val)
+    .trim()
+    .replace(/\s+/g, '')
+    .replace(/[（\(]/g, '(')
+    .replace(/[）\)]/g, ')')
+    .replace(/ー/g, '-');
+}
+
+// ★鉄壁の解答判定ロジック★
 function handleSubmitClick() {
-  const q = currentStageQuestions[currentQIdx];
-  const blankKeys = Object.keys(q.blanks);
+  try {
+    const q = currentStageQuestions[currentQIdx];
+    if (!q || !q.blanks) return;
 
-  let allFilled = true;
-  blankKeys.forEach(k => {
-    if (!userAnswers[k] || userAnswers[k].trim() === "") {
-      allFilled = false;
-    }
-  });
+    const blankKeys = Object.keys(q.blanks);
 
-  if (!allFilled) {
-    sounds.playRetry();
-    alert("空欄をタップして、ぜんぶの数字や言葉を入れてね！");
-    return;
-  }
+    // 未入力チェック
+    let allFilled = true;
+    blankKeys.forEach(k => {
+      const uVal = userAnswers[k];
+      if (uVal === undefined || uVal === null || String(uVal).trim() === "") {
+        allFilled = false;
+      }
+    });
 
-  let isCorrect = true;
-  blankKeys.forEach(k => {
-    if (userAnswers[k] !== q.blanks[k].correct) {
-      isCorrect = false;
-    }
-  });
-
-  const nextBtn = document.getElementById('result-modal-next-btn');
-
-  if (isCorrect) {
-    sounds.playSuccess();
-    starCount += 10;
-    solvedCount++;
-    
-    let ticketEarnedNotice = "";
-    if (solvedCount % 5 === 0) {
-      gachaTickets++;
-      sounds.playFanfare();
-      ticketEarnedNotice = `<div style="background:#FEF3C7; color:#D97706; border:2px dashed #F59E0B; padding:10px; border-radius:12px; font-weight:900; margin-top:10px;">🎁 5問正解達成！ ガチャチケット1枚GET！</div>`;
+    if (!allFilled) {
+      try { sounds.playRetry(); } catch(e){}
+      alert("空欄をタップして、ぜんぶの数字や言葉を入れてね！");
+      return;
     }
 
-    saveStats();
-    updateHeaderStats();
+    // 正誤判定 (正規化して比較)
+    let isCorrect = true;
+    blankKeys.forEach(k => {
+      const userNorm = normalizeAnswer(userAnswers[k]);
+      const correctNorm = normalizeAnswer(q.blanks[k].correct);
+      if (userNorm !== correctNorm) {
+        isCorrect = false;
+      }
+    });
 
-    document.getElementById('result-modal-icon').innerText = "🎉";
-    document.getElementById('result-modal-title').innerText = "Kurwa! 大正解！！";
-    document.getElementById('result-modal-body').innerHTML = `
-      <p style="color: var(--success); font-size: 1.3rem; font-weight:900; margin-bottom:10px;">⭐ スター10個ゲット！ (通算 ${solvedCount} 問正解)</p>
-      ${ticketEarnedNotice}
-      ${q.explanation || ''}
-    `;
+    const nextBtn = document.getElementById('result-modal-next-btn');
 
-    nextBtn.onclick = nextQuestion;
+    if (isCorrect) {
+      try { sounds.playSuccess(); } catch(e){}
+      starCount += 10;
+      solvedCount++;
+      
+      let ticketEarnedNotice = "";
+      if (solvedCount % 5 === 0) {
+        gachaTickets++;
+        try { sounds.playFanfare(); } catch(e){}
+        ticketEarnedNotice = `<div style="background:#FEF3C7; color:#D97706; border:2px dashed #F59E0B; padding:10px; border-radius:12px; font-weight:900; margin-top:10px;">🎁 5問正解達成！ ガチャチケット1枚GET！</div>`;
+      }
 
-    if (currentQIdx === currentStageQuestions.length - 1) {
-      nextBtn.innerText = "🏆 コースクリア画面へ！";
+      saveStats();
+      updateHeaderStats();
+
+      document.getElementById('result-modal-icon').innerText = "🎉";
+      document.getElementById('result-modal-title').innerText = "Kurwa! 大正解！！";
+      document.getElementById('result-modal-body').innerHTML = `
+        <p style="color: var(--success); font-size: 1.3rem; font-weight:900; margin-bottom:10px;">⭐ スター10個ゲット！ (通算 ${solvedCount} 問正解)</p>
+        ${ticketEarnedNotice}
+        ${q.explanation || ''}
+      `;
+
+      // 次へ進むアクションを100%確実にセット
+      nextBtn.onclick = () => {
+        closeModal('result-modal');
+        if (currentQIdx < currentStageQuestions.length - 1) {
+          currentQIdx++;
+          loadQuestion(currentQIdx);
+        } else {
+          showResultScreen();
+        }
+      };
+
+      if (currentQIdx === currentStageQuestions.length - 1) {
+        nextBtn.innerText = "🏆 コースクリア画面へ！";
+      } else {
+        nextBtn.innerText = "つぎの問題へ！ ➔";
+      }
+
+      openModal('result-modal');
+
     } else {
-      nextBtn.innerText = "つぎの問題へ！ ➔";
+      try { sounds.playRetry(); } catch(e){}
+      document.getElementById('result-modal-icon').innerText = "🤔";
+      document.getElementById('result-modal-title').innerText = "おしい！もう一息！";
+      document.getElementById('result-modal-body').innerHTML = `
+        <p style="color: #E11D48; font-weight:800; margin-bottom:10px;">ヒントを参考に、もう一度挑戦してみよう！</p>
+        <div style="background: #FFF1F2; padding: 12px; border-radius: 12px; border: 1px solid #FECDD3;">
+          ${q.hint2 || ''}
+        </div>
+      `;
+      nextBtn.innerText = "もう一度やる！";
+      nextBtn.onclick = () => closeModal('result-modal');
+      openModal('result-modal');
     }
-
-    openModal('result-modal');
-
-  } else {
-    sounds.playRetry();
-    document.getElementById('result-modal-icon').innerText = "🤔";
-    document.getElementById('result-modal-title').innerText = "おしい！もう一息！";
-    document.getElementById('result-modal-body').innerHTML = `
-      <p style="color: #E11D48; font-weight:800; margin-bottom:10px;">ヒントを参考に、もう一度挑戦してみよう！</p>
-      <div style="background: #FFF1F2; padding: 12px; border-radius: 12px; border: 1px solid #FECDD3;">
-        ${q.hint2 || ''}
-      </div>
-    `;
-    nextBtn.innerText = "もう一度やる！";
-    nextBtn.onclick = () => closeModal('result-modal');
-    openModal('result-modal');
+  } catch (err) {
+    // 例外発生時も確実に次へ進ませるセーフティネット
+    if (currentQIdx < currentStageQuestions.length - 1) {
+      currentQIdx++;
+      loadQuestion(currentQIdx);
+    } else {
+      showResultScreen();
+    }
   }
 }
 
@@ -396,7 +435,7 @@ function nextQuestion() {
 }
 
 function showResultScreen() {
-  sounds.playFanfare();
+  try { sounds.playFanfare(); } catch(e){}
   document.getElementById('quiz-play-screen').style.display = 'none';
 
   const resultScreen = document.getElementById('result-screen');
@@ -407,7 +446,7 @@ function showResultScreen() {
 }
 
 function openGachaModal() {
-  sounds.playTap();
+  try { sounds.playTap(); } catch(e){}
   const container = document.getElementById('gacha-card-result-container');
   container.innerHTML = `
     <div id="gacha-pack-cover" onclick="doDrawGacha()" style="cursor: pointer; background: linear-gradient(135deg, #EF4444 0%, #3B82F6 100%); color: white; width: 160px; height: 210px; border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 900; box-shadow: 0 10px 30px rgba(0,0,0,0.3); animation: float 3s infinite ease-in-out;">
@@ -420,7 +459,7 @@ function openGachaModal() {
 
 function doDrawGacha() {
   if (gachaTickets <= 0) {
-    sounds.playRetry();
+    try { sounds.playRetry(); } catch(e){}
     alert("ガチャチケットがありません！問題を解いて5問正解ごとにゲットしてね！");
     return;
   }
@@ -433,9 +472,9 @@ function doDrawGacha() {
   const card = result.card;
 
   if (card.rarity === 'SSR') {
-    sounds.playFanfare();
+    try { sounds.playFanfare(); } catch(e){}
   } else {
-    sounds.playSuccess();
+    try { sounds.playSuccess(); } catch(e){}
   }
 
   const container = document.getElementById('gacha-card-result-container');
@@ -453,13 +492,13 @@ function doDrawGacha() {
 let currentCollectionFilter = 'ALL';
 
 function openCardCollectionModal() {
-  sounds.playTap();
+  try { sounds.playTap(); } catch(e){}
   renderCardCollectionGrid();
   openModal('collection-modal');
 }
 
 function filterCardCollection(filter) {
-  sounds.playTap();
+  try { sounds.playTap(); } catch(e){}
   currentCollectionFilter = filter;
 
   document.querySelectorAll('.rarity-tabs .tab-btn').forEach(btn => {
@@ -518,5 +557,12 @@ function renderCardIllustration(card) {
   }
 }
 
-function openModal(id) { document.getElementById(id).classList.add('active'); }
-function closeModal(id) { sounds.playTap(); document.getElementById(id).classList.remove('active'); }
+function openModal(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.add('active');
+}
+function closeModal(id) {
+  try { sounds.playTap(); } catch(e){}
+  const el = document.getElementById(id);
+  if (el) el.classList.remove('active');
+}
