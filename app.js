@@ -1,4 +1,4 @@
-// メインアプリケーションロジック (全46問・解答判定完全鉄壁版)
+// メインアプリケーションロジック (グラフ描画パス完全バグ修正版)
 let currentStageQuestions = [];
 let currentQIdx = 0;
 let userAnswers = {};
@@ -149,6 +149,7 @@ function loadQuestion(index) {
   renderGraph(q.graphData);
 }
 
+// 完全に正しいCanvas座標軸描画機能 (余計な斜め線を追放)
 function renderGraph(graphData) {
   const canvas = document.getElementById('graphCanvas');
   if (!canvas) return;
@@ -162,6 +163,7 @@ function renderGraph(graphData) {
   const width = rect.width;
   const height = rect.height;
 
+  // キャンバスをクリア
   ctx.fillStyle = '#FAFAFA';
   ctx.fillRect(0, 0, width, height);
 
@@ -169,6 +171,7 @@ function renderGraph(graphData) {
   const originY = height / 2;
   const scale = 14;
 
+  // グリッド線
   ctx.strokeStyle = '#E2E8F0';
   ctx.lineWidth = 1;
   for (let x = originX % scale; x < width; x += scale) {
@@ -178,17 +181,29 @@ function renderGraph(graphData) {
     ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke();
   }
 
+  // ★修正箇所: x軸・y軸を正確に一直線に描画★
   ctx.strokeStyle = '#64748B';
   ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.moveTo(0, originY); ctx.lineTo(originY, height); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(originX, 0); ctx.lineTo(originX, height); ctx.stroke();
+  // x軸 (水平線)
+  ctx.beginPath(); 
+  ctx.moveTo(0, originY); 
+  ctx.lineTo(width, originY); 
+  ctx.stroke();
+  
+  // y軸 (垂直線)
+  ctx.beginPath(); 
+  ctx.moveTo(originX, 0); 
+  ctx.lineTo(originX, height); 
+  ctx.stroke();
 
+  // ラベル文字
   ctx.fillStyle = '#475569';
   ctx.font = 'bold 11px "M PLUS Rounded 1c"';
   ctx.fillText('x', width - 12, originY - 6);
   ctx.fillText('y', originX + 6, 12);
   ctx.fillText('O', originX - 12, originY + 12);
 
+  // 一次関数の直線描画 y = ax + b
   if (graphData && typeof graphData.a === 'number') {
     const a = graphData.a;
     const b = graphData.b;
@@ -206,6 +221,7 @@ function renderGraph(graphData) {
     ctx.lineTo(width, originY - yMax * scale);
     ctx.stroke();
 
+    // 切片 (0, b) の紫色の点
     const interceptScreenY = originY - b * scale;
     if (interceptScreenY >= 0 && interceptScreenY <= height) {
       ctx.fillStyle = '#8B5CF6';
@@ -311,7 +327,6 @@ function handleHintClick() {
   openModal('hint-modal');
 }
 
-// ★文字列・数字のゆらぎを吸収する完全正規化関数★
 function normalizeAnswer(val) {
   if (val === undefined || val === null) return "";
   return String(val)
@@ -322,7 +337,6 @@ function normalizeAnswer(val) {
     .replace(/ー/g, '-');
 }
 
-// ★鉄壁の解答判定ロジック★
 function handleSubmitClick() {
   try {
     const q = currentStageQuestions[currentQIdx];
@@ -330,7 +344,6 @@ function handleSubmitClick() {
 
     const blankKeys = Object.keys(q.blanks);
 
-    // 未入力チェック
     let allFilled = true;
     blankKeys.forEach(k => {
       const uVal = userAnswers[k];
@@ -345,7 +358,6 @@ function handleSubmitClick() {
       return;
     }
 
-    // 正誤判定 (正規化して比較)
     let isCorrect = true;
     blankKeys.forEach(k => {
       const userNorm = normalizeAnswer(userAnswers[k]);
@@ -380,7 +392,6 @@ function handleSubmitClick() {
         ${q.explanation || ''}
       `;
 
-      // 次へ進むアクションを100%確実にセット
       nextBtn.onclick = () => {
         closeModal('result-modal');
         if (currentQIdx < currentStageQuestions.length - 1) {
@@ -414,7 +425,6 @@ function handleSubmitClick() {
       openModal('result-modal');
     }
   } catch (err) {
-    // 例外発生時も確実に次へ進ませるセーフティネット
     if (currentQIdx < currentStageQuestions.length - 1) {
       currentQIdx++;
       loadQuestion(currentQIdx);
